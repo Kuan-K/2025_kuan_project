@@ -1,46 +1,12 @@
 # Study Note: RACH/PRACH intro
 
 ## TOC
-1. [Task 1: read 36.321 PRACH](#1-task-1-read-36321-prach)
-2. [Task 2: ToA demo skeleton](#2-task-2-toa-demo-skeleton)
-3. [Task 3: experiment design](#3-task-3-experiment-design)
+1. Introduction
 
 ---
 
-## 1. Task 1: read 36.321 PRACH
-Goal: understand preamble and RAR
-Status: Doing
-Refs: 3GPP 36.321
-
-Steps
-- [ ] outline signal flow
-- [ ] note code paths src/examples/prach/
-
-Summary / Output
-- ...
-
----
-
-## 2. Task 2: ToA demo skeleton
-Goal: run ToA estimation and a simple plot
-Status: TODO
-Refs: src/examples/prach/estimate.py
-
-Steps
-- [ ] generate simulated signal
-- [ ] add noise and measure bias
-
-Summary / Output
-- ...
-
----
-
-## 3. Task 3: experiment design
-Goal: choose SNR range, sample count, metrics
-Status: TODO
-
-Steps
-- [ ] ...
-
-Summary / Output
-- ...
+## 1. Task 1: read introduction
+  心得與資料
+  1. LaTex可以能快速且低成本，就能做很好的排版。
+  2. conference 與 journal的差異，前者篇幅較短，更新快但相對後者沒那麼嚴謹
+  3. 有4大bare bones範例模板可以快速產生論文的格式
