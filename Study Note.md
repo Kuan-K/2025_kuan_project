@@ -1,4 +1,4 @@
-# Study Note: RACH/PRACH intro
+# Study Note: IEEEtran LaTeX
 
 ## TOC
 1. Introduction
