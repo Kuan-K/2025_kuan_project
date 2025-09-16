@@ -1,0 +1,15 @@
+site_name: Project Notes
+repo_url: https://github.com/<your-username>/<your-repo>
+nav:
+  - Home: index.md
+  - Notes:
+    - notes/README.md
+theme:
+  name: material
+markdown_extensions:
+  - admonition
+  - footnotes
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
