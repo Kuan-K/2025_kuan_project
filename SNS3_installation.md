@@ -39,8 +39,11 @@ cd bake
 ./bake.py check
 ```
 BAKE_HOME：指定 Bake 的安裝/建置根目錄。pwd 會把「目前目錄」的絕對路徑填進去。
+
 PATH+=.../build/bin：讓 shell 找得到由 Bake 建出的可執行檔（之後會出現在 build/bin）。
+
 PYTHONPATH=.../build/lib：讓 Python 能 import Bake/NS-3 建出的 Python 模組與綁定（.so / .py）。
+
 LD_LIBRARY_PATH=.../build/lib：讓 動態連結器 找到建出的共享函式庫（.so），可避免執行時「找不到庫」。
 
 ### Deploy ns3 by bake
@@ -85,6 +88,7 @@ cd ~/workspace/bake/source/ns-3.43/contrib/magister-stats
 git checkout 3.43
 ```
 contrib/ 是 ns-3 的外掛模組目錄：放在這裡的專案，ns-3 會在設定/建置時自動發現並一併編譯、連結。
+
 *note 須將外掛模組隊齊版本壁面API不相容
 
 ### Configure CMake and ask it to build NS-3 
@@ -95,6 +99,7 @@ cd ~/workspace/bake/source/ns-3.43
 ./ns3 build
 ```
 ./ns3 configure --build-profile=optimized --enable-examples --enable-tests：以最佳化模式設定建置，並且把範例與測試都納入。
+
 ./ns3 build：開始編譯。CMake 會自動把 contrib/ 裡找到的所有模組一起編譯
 
 ### Post-Compilation
