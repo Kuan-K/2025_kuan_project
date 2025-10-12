@@ -11,9 +11,13 @@ sudo apt update
 sudo apt install -y git automake cmake qtbase5-dev python3-dev python3
 ```
 apt update：更新套件清單。
+
 git：之後要用來把原始碼倉庫複製下來。
+
 automake、cmake：常見的建置工具。
+
 qtbase5-dev：Qt5 的開發檔（之後像 NetAnim 這類基於 Qt 的視覺化工具會需要）。
+
 python3、python3-dev：Bake 及 ns-3 的 Python 綁定/腳本需要 Python，python3-dev 提供 Python 的標頭檔給編譯器用。
 
 ### Installation by bake
@@ -69,9 +73,9 @@ cd source/ns-3.43
 
 ./ns3 configure --build-profile=debug --enable-examples --enable-tests
 呼叫 ns3 腳本（ns-3 的官方建置前端）去執行 CMake 的「設定」階段：
-    --build-profile=debug：把編譯模式設成除錯（含符號、關閉最佳化），方便追蹤與測試。
-    --enable-examples：把 examples/ 目錄下的示例程式也納入建置。
-    --enable-tests：把單元測試/整合測試也納入建置，之後可 ./ns3 test 執行。
+>  --build-profile=debug：把編譯模式設成除錯（含符號、關閉最佳化），方便追蹤與測試。
+>  --enable-examples：把 examples/ 目錄下的示例程式也納入建置。
+>  --enable-tests：把單元測試/整合測試也納入建置，之後可 ./ns3 test 執行。
 
 ### Get satellite/ traffic/magister-stats modules
 ```
