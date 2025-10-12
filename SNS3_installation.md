@@ -73,9 +73,12 @@ cd source/ns-3.43
 
 ./ns3 configure --build-profile=debug --enable-examples --enable-tests
 呼叫 ns3 腳本（ns-3 的官方建置前端）去執行 CMake 的「設定」階段：
->  --build-profile=debug：把編譯模式設成除錯（含符號、關閉最佳化），方便追蹤與測試。
->  --enable-examples：把 examples/ 目錄下的示例程式也納入建置。
->  --enable-tests：把單元測試/整合測試也納入建置，之後可 ./ns3 test 執行。
+
+  --build-profile=debug：把編譯模式設成除錯（含符號、關閉最佳化），方便追蹤與測試。
+  
+  --enable-examples：把 examples/ 目錄下的示例程式也納入建置。
+  
+  --enable-tests：把單元測試/整合測試也納入建置，之後可 ./ns3 test 執行。
 
 ### Get satellite/ traffic/magister-stats modules
 ```
