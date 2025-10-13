@@ -1,16 +1,16 @@
 # Study Note: SNS3-Satellite
 
 ## TOC
-1.Forward Link
-2.ACM
-3.Scheduler
-4.Fading
-5.GW / UT（Gateway / User Terminal）
-6.BBFrame（Baseband Frame）
-7.CBR vs OnOff
-8.Architecture diagram
-9.Flowchart
-10.MSC
+1. Forward Link
+2. ACM
+3. Scheduler
+4. Fading
+5. GW / UT（Gateway / User Terminal）
+6. BBFrame（Baseband Frame）
+7. CBR vs OnOff
+8. Architecture diagram
+9. Flowchart
+10. MSC
 ---
 
 ## 1. Forward Link
