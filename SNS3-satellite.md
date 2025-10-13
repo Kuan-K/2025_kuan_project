@@ -8,6 +8,9 @@
 5.GW / UT（Gateway / User Terminal）
 6.BBFrame（Baseband Frame）
 7.CBR vs OnOff
+8.Architecture diagram
+9.Flowchart
+10.MSC
 ---
 
 ## 1. Forward Link
@@ -42,5 +45,10 @@
           平均資料率 DataRate(16000)（bit/s）看起來很小（16 kbps），
           
           但因為是突發型，短時間內可能造成隊列尖峰，導致 merge 次數上升、幀佔用率抖動、排程更忙
+## 8. Architecture diagram
+<img width="1381" height="361" alt="sat-fwd-system-test-Architecture drawio" src="https://github.com/user-attachments/assets/03a07a0e-2e06-4114-ae4c-10c1532877bc" />
+## 9. Flowchart
+<img width="1140" height="1432" alt="sat-fwd-system-test-Flowchart drawio" src="https://github.com/user-attachments/assets/5e5b25fb-52b7-4b13-8ebc-fdb0e7f3debc" />
+## 10. MSC
   
   
