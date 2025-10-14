@@ -49,7 +49,6 @@
 <img width="1381" height="361" alt="sat-fwd-system-test-Architecture drawio" src="https://github.com/user-attachments/assets/03a07a0e-2e06-4114-ae4c-10c1532877bc" />
 ## 9. Flowchart
 <img width="1140" height="1432" alt="sat-fwd-system-test-Flowchart drawio" src="https://github.com/user-attachments/assets/5e5b25fb-52b7-4b13-8ebc-fdb0e7f3debc" />
+## 10. MSC  
+<img width="821" height="821" alt="sat-fwd-system-test-MSC drawio" src="https://github.com/user-attachments/assets/7d7b21dc-100e-41be-9068-559cc04fd800" />
 
-## 10. MSC
-  
-  
