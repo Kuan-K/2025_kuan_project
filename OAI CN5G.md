@@ -80,6 +80,8 @@ docker compose up -d
 ```
 watch -n 1 docker compose -f docker-compose.yml ps -a
 ```
+**Output**
+<img width="1840" height="233" alt="image" src="https://github.com/user-attachments/assets/bb20ea4b-8cdd-4556-9851-b08f08680e7c" />
 
 ### Stop OAI CN5G
 ```
