@@ -55,7 +55,7 @@ docker compose pull
  ✔ ims Pulled
 ```
 
-### Start OAI CN5G
+### Start OAI CN5G(之後只要執行這個就可開啟CoreNetwork)
 ```
 cd ~/oai-cn5g
 docker compose up -d
@@ -75,6 +75,10 @@ docker compose up -d
  ✔ Container oai-amf            Started                                    1.6s 
  ✔ Container oai-smf            Started                                    1.7s 
  ✔ Container oai-upf            Started                                    2.0s 
+```
+### 查看容器是否健康
+```
+watch -n 1 docker compose -f docker-compose.yml ps -a
 ```
 
 ### Stop OAI CN5G
