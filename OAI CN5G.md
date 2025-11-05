@@ -1,7 +1,7 @@
 # OAI CN5G
 
 > Reference :
-> - [https://github.com/sns3/sns3-satellite?tab=readme-ov-file#bake](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/doc/NR_SA_Tutorial_OAI_CN5G.md?ref_type=heads)
+> - [NR_SA_Tutorial_OAI_CN5G](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/doc/NR_SA_Tutorial_OAI_CN5G.md?ref_type=heads)
 
 ### 安裝開發與網路工具（git、net-tools、PuTTY）
 ```
