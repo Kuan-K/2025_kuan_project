@@ -3,6 +3,21 @@
 > Reference :
 > - [NR_SA_Tutorial_OAI_CN5G](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/doc/NR_SA_Tutorial_OAI_CN5G.md?ref_type=heads)
 
+
+## OAI CN5G snapshot
+
+本資料夾為 OAI openairinterface5g 專案中  
+`doc/tutorial_resources/oai-cn5g` 於 2024-05-22 的快照。
+
+- upstream repo: openairinterface5g
+- branch: `develop`
+- file: `doc/tutorial_resources/oai-cn5g/docker-compose.yaml`
+- commit: `246a8aff`
+- license: OAI Public License v1.1（詳見原專案）
+
+此版本已在 Ubuntu 22.04 + Docker 上測試可正常啟動。
+
+
 ### 安裝開發與網路工具（git、net-tools、PuTTY）
 ```
 sudo apt update
