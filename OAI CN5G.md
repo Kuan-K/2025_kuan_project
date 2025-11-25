@@ -83,7 +83,7 @@ watch -n 1 docker compose -f docker-compose.yml ps -a
 **Output**
 <img width="1840" height="233" alt="image" src="https://github.com/user-attachments/assets/bb20ea4b-8cdd-4556-9851-b08f08680e7c" />
 
-### Stop OAI CN5G
+### Stop OAI CN5G(結束一定要關不然會留下容器)
 ```
 cd ~/oai-cn5g
 docker compose down
@@ -103,3 +103,48 @@ docker compose down
  ✔ Container mysql              Removed                                    0.8s 
  ✔ Network oai-cn5g-public-net  Removed                                    0.2s 
 ```
+### 錯誤排查
+
+#### 錯誤資訊:IP重疊
+```
+ ✘ Network oai-cn5g-public-net  Error                                      0.0s 
+failed to create network oai-cn5g-public-net: Error response from daemon: invalid pool request: Pool overlaps with other one on this address space
+```
+
+解決方法
+```
+docker network inspect bridge #會看到類似："Subnet": "192.168.70.0/24"
+```
+打開專案中的docker-compose.yml找到：
+```
+networks:
+  oai-cn5g-public-net:
+    ipam:
+      config:
+        - subnet: 192.168.70.128/26
+```
+查看是不是一樣，如果不一樣
+```
+docker network inspect $(docker network ls -q) | grep -E '"Name"|"Subnet"'# 看每一個 network 的 Subnet
+```
+如果輸出裡有像：
+```
+"Name": "xxxxxx",
+    "Subnet": "192.168.70.0/24",
+```
+可以用：
+```
+docker network rm xxxxxx
+```
+**不要刪到bridge / host / none
+
+#### 錯誤資訊:容器重疊
+```
+Error response from daemon: Conflict. The container name "/mysql" is already in use by container "e9b912e99f6060da3969c1c169deb8c9b3ed724657a12595b031d57aa067915e". You have to remove (or rename) that container to be able to reuse that name.
+```
+代表mysql這個容器重疊了上次沒有刪
+
+```
+docker rm -f mysql
+```
+用docker rm -f xxxxxx刪除指定容器，如果刪完後再重新跑就好
