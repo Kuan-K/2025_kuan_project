@@ -67,6 +67,8 @@ Registration reject, cause = Illegal UE
 
 #### 解決方法(快速讓他能跑通)
 Copy 一個ue.conf檔 改叫ue_test1.conf 並將裡面的ISMI改為"001010000000001" 
+
+
 <img width="415" height="131" alt="image" src="https://github.com/user-attachments/assets/f957b865-0a92-449e-a7f4-23cf4b50eb39" />
 
 重新執行
