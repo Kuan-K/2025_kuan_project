@@ -6,8 +6,8 @@
 
 ## OAI CN5G snapshot
 
-本資料夾為 OAI openairinterface5g 專案中  
-`doc/tutorial_resources/oai-cn5g` 於 2024-05-22 的快照。
+This folder is a snapshot of `doc/tutorial_resources/oai-cn5g` from the OAI openairinterface5g project
+as of 2024-05-22.
 
 - upstream repo: openairinterface5g
 - branch: `develop`
@@ -15,16 +15,16 @@
 - commit: `246a8aff`
 - license: OAI Public License v1.1（詳見原專案）
 
-此版本已在 Ubuntu 22.04 + Docker 上測試可正常啟動。
+This version has been tested on Ubuntu 22.04 + Docker and can be started successfully。
 
 
-### 安裝開發與網路工具（git、net-tools、PuTTY）
+### Install development and networking tools（git、net-tools、PuTTY）
 ```
 sudo apt update
 sudo apt install -y git net-tools putty
 ```
 
-### 安裝 Docker Engine 與 Docker Compose 外掛
+### Install Docker Engine and the Docker Compose plugin
 ```
 sudo apt update
 sudo apt install -y ca-certificates curl
@@ -35,13 +35,13 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.
 sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
-### 把目前使用者加入 docker 群組（之後即可不需 sudo 執行 docker），然後重開機。
+### Add the current user to the docker group (so you can run Docker without sudo afterward), then reboot
 ```
 sudo usermod -a -G docker $(whoami)
 reboot
 ```
 
-### 下載 OAI 提供的教學資源壓縮包，解壓後把 oai-cn5g 目錄移到家目錄，然後刪除中間產物與壓縮檔。
+### Download the tutorial resource archive provided by OAI, extract it, move the oai-cn5g directory to your home directory, and then delete the intermediate files and the archive.
 ```
 wget -O ~/oai-cn5g.zip https://gitlab.eurecom.fr/oai/openairinterface5g/-/archive/develop/openairinterface5g-develop.zip?path=doc/tutorial_resources/oai-cn5g
 unzip ~/oai-cn5g.zip
@@ -49,7 +49,7 @@ mv ~/openairinterface5g-develop-doc-tutorial_resources-oai-cn5g/doc/tutorial_res
 rm -r ~/openairinterface5g-develop-doc-tutorial_resources-oai-cn5g ~/oai-cn5g.zip
 ```
 
-### 下載 OAI CN5G 的 Docker 映像
+### Pull OAI CN5G docker images
 ```
 cd ~/oai-cn5g
 docker compose pull
@@ -70,7 +70,7 @@ docker compose pull
  ✔ ims Pulled
 ```
 
-### Start OAI CN5G(之後只要執行這個就可開啟CoreNetwork)
+### Start OAI CN5G(After that, you just need to run this to start the Core Network.)
 ```
 cd ~/oai-cn5g
 docker compose up -d
@@ -91,14 +91,14 @@ docker compose up -d
  ✔ Container oai-smf            Started                                    1.7s 
  ✔ Container oai-upf            Started                                    2.0s 
 ```
-### 查看容器是否健康
+### Check whether the containers are healthy
 ```
 watch -n 1 docker compose -f docker-compose.yml ps -a
 ```
 **Output**
 <img width="1840" height="233" alt="image" src="https://github.com/user-attachments/assets/bb20ea4b-8cdd-4556-9851-b08f08680e7c" />
 
-### Stop OAI CN5G(結束一定要關不然會留下容器)
+### Stop OAI CN5G(Make sure to shut it down when you’re done, otherwise the containers will be left running.)
 ```
 cd ~/oai-cn5g
 docker compose down
@@ -118,19 +118,19 @@ docker compose down
  ✔ Container mysql              Removed                                    0.8s 
  ✔ Network oai-cn5g-public-net  Removed                                    0.2s 
 ```
-### 錯誤排查
+### Troubleshooting
 
-#### 錯誤資訊:IP重疊
+#### Error message: Overlapping IP addresses
 ```
  ✘ Network oai-cn5g-public-net  Error                                      0.0s 
 failed to create network oai-cn5g-public-net: Error response from daemon: invalid pool request: Pool overlaps with other one on this address space
 ```
 
-解決方法
+#### Solution
 ```
-docker network inspect bridge #會看到類似："Subnet": "192.168.70.0/24"
+docker network inspect bridge #you will see something like："Subnet": "192.168.70.0/24"
 ```
-打開專案中的docker-compose.yml找到：
+Open the docker-compose.yml file in the project and find this section:
 ```
 networks:
   oai-cn5g-public-net:
@@ -138,28 +138,28 @@ networks:
       config:
         - subnet: 192.168.70.128/26
 ```
-查看是不是一樣，如果不一樣
+Check whether they are the same. If not, run the following commands.
 ```
 docker network inspect $(docker network ls -q) | grep -E '"Name"|"Subnet"'# 看每一個 network 的 Subnet
 ```
-如果輸出裡有像：
+If you find this in the output：
 ```
 "Name": "xxxxxx",
     "Subnet": "192.168.70.0/24",
 ```
-可以用：
+remove：
 ```
 docker network rm xxxxxx
 ```
-**不要刪到bridge / host / none
+**Don't remove bridge / host / none
 
-#### 錯誤資訊:容器重疊
+#### Error message: Duplicate containers
 ```
 Error response from daemon: Conflict. The container name "/mysql" is already in use by container "e9b912e99f6060da3969c1c169deb8c9b3ed724657a12595b031d57aa067915e". You have to remove (or rename) that container to be able to reuse that name.
 ```
-代表mysql這個容器重疊了上次沒有刪
+This means the `mysql`container is duplicated — the one from last time was not removed.
 
 ```
 docker rm -f mysql
 ```
-用docker rm -f xxxxxx刪除指定容器，如果刪完後再重新跑就好
+Use `docker rm -f xxxxxx` to delete the specified container. After deleting it, just run the setup again.
