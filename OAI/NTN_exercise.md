@@ -128,3 +128,7 @@ You can see this line:
 ```
 This means the system is taking into account a ~238 ms propagation delay,
 but the RACH/RAR mapping can still fail to match the preamble because of timing offsets.
+
+
+### 模組與程式碼參數對照方塊圖
+<img width="771" height="800" alt="方塊對照圖" src="https://github.com/user-attachments/assets/1df78cf6-6bc4-44ca-bf96-9948ca63449c" />
