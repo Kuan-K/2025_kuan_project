@@ -10,9 +10,9 @@ This folder is a snapshot of `doc/tutorial_resources/oai-cn5g` from the OAI open
 as of 2024-05-22.
 
 - upstream repo: openairinterface5g
-- branch: `develop`
+- branch: `2025.w46`
 - file: `doc/tutorial_resources/oai-cn5g/docker-compose.yaml`
-- commit: `246a8aff`
+- commit: `92980ceb72`
 - license: OAI Public License v1.1（詳見原專案）
 
 This version has been tested on Ubuntu 22.04 + Docker and can be started successfully。
