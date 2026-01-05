@@ -31,7 +31,9 @@
    Regenerative Mode：衛星可做解碼處理信號，衛星像是一個太空中的基地台，而不只是轉傳訊號。 方塊圖 [regen](https://github.com/Kuan-K/2025_kuan_project/blob/main/%E7%AD%86%E8%A8%98%E5%9C%96%E7%89%87/%E6%96%B9%E5%A1%8A%E6%A8%A1%E6%93%AC%E5%9C%96leo_regen_F.png)
    
   ![NTN_Fig2](https://github.com/user-attachments/assets/3c7a4f8f-ef87-4388-ba6c-236efd8d0433)
+  
 ## 2. : 5G NR協定堆疊(Protocol Stack)
+
   在3GPP NTN 中，無線介面沿用 5G NR Protocol Stack。
   
   ![Uplane](https://github.com/Kuan-K/2025_kuan_project/blob/main/%E7%AD%86%E8%A8%98%E5%9C%96%E7%89%87/NR%20Protocol%20Stack.png)    ![Cplane](https://github.com/Kuan-K/2025_kuan_project/blob/main/%E7%AD%86%E8%A8%98%E5%9C%96%E7%89%87/NR%20Protocol%20Stack%20(C%20plane).png)
@@ -81,6 +83,7 @@
     
 * NAS (Non-Access Stratum,非接入層)
   * 功能：(UE $\leftrightarrow$ CN) 負責 UE 與核心網 (AMF/SMF) 之間的移動性管理、對談管理與安全控制。
+  * 
 ## 3. : NTN 的主要問題
 
 ### PHY
@@ -114,7 +117,8 @@
 
      RLC-AM 雖然速度較慢，但能在長延遲環境下運作，確保資料在遺失時仍能被重新傳送。
 
-  ## 4. Task 4: 延遲補償（Delay Compensation）
+  ## 4. : 延遲補償（Delay Compensation）
+  
   在地面 5G 中，基地台（gNB）會告訴手機（UE）應該如何調整它的時間（Timing）。
   但在 NTN 中，延遲太大了，無法像地面 5G 一樣讓 gNB 即時回饋。
 
