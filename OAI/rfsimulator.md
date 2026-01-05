@@ -84,4 +84,9 @@ In the configuration file, each entry in a model list uses a set of parameters t
 
 Quoted from ([model lists](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair1/SIMULATION/TOOLS/DOC/channel_simulation.md?plain=0#model-lists))
 
+##　預計要看的檔案
 
+* [openair1/SIMULATION/TOOLS/multipath_channel.c](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair1/SIMULATION/TOOLS/multipath_channel.c)	最核心的數學檔案。實現了多路徑卷積、多徑效應（Multipath）的計算。
+* [openair1/SIMULATION/TOOLS/random_channel.c](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair1/SIMULATION/TOOLS/random_channel.c)	負責通道模型的初始化與生成（例如生成隨機的衰落係數）。
+* [openair1/SIMULATION/TOOLS/sim.h](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair1/SIMULATION/TOOLS/sim.h)	定義了最重要的數據結構 channel_desc_t，包含了通道的所有參數（延遲、增益、天線數等）。
+* [openair1/SIMULATION/TOOLS/DOC/channel_simulation.md](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair1/SIMULATION/TOOLS/DOC/channel_simulation.md)	官方的技術說明文件，詳細描述了配置參數與模型原理。
