@@ -35,10 +35,51 @@
 ## 2. : 5G NR協定堆疊(Protocol Stack)
   在3GPP NTN 中，無線介面沿用 5G NR Protocol Stack。
   
-  <img width="355" height="391" alt="image" src="https://github.com/user-attachments/assets/807024da-4f9e-4055-8ce0-f7982d86ae3d" />
-![NTN_Fig2]
+  ![Uplane](https://github.com/Kuan-K/2025_kuan_project/blob/main/%E7%AD%86%E8%A8%98%E5%9C%96%E7%89%87/NR%20Protocol%20Stack.png)    ![Cplane](https://github.com/Kuan-K/2025_kuan_project/blob/main/%E7%AD%86%E8%A8%98%E5%9C%96%E7%89%87/NR%20Protocol%20Stack%20(C%20plane).png)
 
+### 用戶平面 (User Plane, U-plane) 與 控制平面 (Control Plane, C-plane)
 
+* 用戶平面 (User Plane)外部： 負責處理用戶實際產生的數據，目標是讓數據能高效、安全地在 UE（手機）與外部網路之間傳輸。
+    最終連接到 UPF (User Plane Function)
+* 控制平面 (Control Plane)內部： 負責處理信令（Signaling），目標是管理連線的建立與維護。
+    最終連接到 AMF (Access and Mobility Management Function)
+#### 各層介紹
+* SDAP (Service Data Adaptation Protocol,服務數據適應協定)
+  * 任務： 這是 5G 中的最頂層協定，其唯一的任務是將服務品質 (QoS) 流映射到特定的「無線承載 (Radio Bearer)」。
+  * 比喻： 就像公司的郵件分類員，看到標註為「緊急/執行長」的信件（如語音通話）會放入「快遞」郵袋，而標註為「通訊報」的信件（如背景更新）則放入「大宗郵件」袋中。
+  
+    [note] 無線承載:用戶設備 (UE) 與 基地台 (gNB) 之間建立的「虛擬傳輸通道」，專門用來承載具有特定服務品質（QoS）要求的數據。
+    可以想像成專屬的物流傳送帶，每條傳送帶都根據貨物的需求，例如:不能損壞、必須極速送達，設定了不同的運送規則。
+    
+* PDCP (Packet Data Convergence Protocol,封包數據匯聚協定)
+  * 任務：此層接收來自 SDAP 的數據並執行兩大任務：1. 壓縮 IP 標頭以節省空間；2. 對數據進行加密以確保安全。
+  * 比喻：這是安全與包裝部門。它會對郵件進行「真空密封」使其體積變小（壓縮），並放入「防篡改的鎖定袋」中（加密）。
+    
+* RLC (Radio Link Control,無線鏈路控制)
+  * 任務：確保可靠性並處理大型封包。將大型封包分段，並在需要時使用 ARQ (自動重傳請求) 重新傳輸遺失的碎片。
+  * 比喻：這是運輸部門。它接收大型物品（如自行車）並將其「拆解」以裝入數個小箱子，並標註「1號箱(輪子)，共 2 箱」、「2號箱(車架)，共 1 箱」等，以便在接收端重新組裝。
+  * 模式： 包含透明模式 (TM)、不確認模式 (UM) 和確認模式 (AM)，其中 AM 提供可靠的數據傳輸。
+     1. 透明模式 (Transparent Mode, TM)
+         這是最簡單的模式，RLC 層幾乎「不做任何處理」。
+      2. 不確認模式 (Unacknowledged Mode, UM)
+         這種模式負責處理數據的分段，但「不負責檢查對方是否收到」。
+      3. 確認模式 (Acknowledged Mode, AM)
+         這是最複雜且最可靠的模式，除了分段功能外，它使用 ARQ（自動重傳請求） 機制。如果發送端沒收到接收端的確認（ACK），或者收到錯誤通知（NACK），就會重新發送遺失的數據碎片。
+         
+* MAC (Medium Access Control,媒體存取控制)
+  * 任務：負責調度哪位用戶在何時可以傳輸，來自 RLC 層的小碎片多工處理 (Multiplex) 成一個大的傳輸區塊 (Transport Block)；調度 (Scheduling)、邏輯通道優先級排序、透過 HARQ (混合自動重傳請求) 進行錯誤校正，以及通道映射。
+  * 比喻：裝卸碼頭經理。它查看所有小箱子，並決定哪些箱子適合裝入現在要出發的卡車。
+* PHY (Physical Layer,實體層)
+  * 任務：這是實體硬體，將來自 MAC 層的位元轉換為無線電訊號。
+  * 比喻：卡車與司機，負責貨物的實際物理運輸。
+  * 功能： 編碼、調變，以及頻率/時間同步。
+    
+* RRC (Radio Resource Control,無線資源控制)
+  * 功能：(UE $\leftrightarrow$ gNB) 連線建立/釋放、系統資訊廣播 (SIB)、無線承載配置、測量報告
+  * 比喻：飯店櫃檯與服務生。分配床位、換房間 (Handover)、拿地圖 (SIB)、連線狀態
+    
+* NAS (Non-Access Stratum,非接入層)
+  * 功能：(UE $\leftrightarrow$ CN) 負責 UE 與核心網 (AMF/SMF) 之間的移動性管理、對談管理與安全控制。
 ## 4. : NTN 的主要問題
 
 ### PHY
