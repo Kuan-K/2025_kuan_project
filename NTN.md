@@ -45,7 +45,7 @@
 * 控制平面 (Control Plane)內部： 負責處理信令（Signaling），目標是管理連線的建立與維護。
     最終連接到 AMF (Access and Mobility Management Function)
   
-  [note] [核心網](https://github.com/Kuan-K/2025_kuan_project/edit/main/OAI/5GCNcode#study-note-ntn-backgroumd-knowledge)
+  [note] [核心網](https://github.com/Kuan-K/2025_kuan_project/blob/main/OAI/5GCN.md#study-note-5gcn)
 #### 各層介紹
 * SDAP (Service Data Adaptation Protocol,服務數據適應協定)
   * 任務： 這是 5G 中的最頂層協定，其唯一的任務是將服務品質 (QoS) 流映射到特定的「無線承載 (Radio Bearer)」。
