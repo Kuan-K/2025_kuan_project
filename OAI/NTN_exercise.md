@@ -5,6 +5,9 @@
 > - https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/ci-scripts/conf_files/gnb.sa.band254.u0.25prb.rfsim.ntn-leo.conf
 > - https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/ci-scripts/conf_files/nrue.uicc.ntn-leo.conf
 
+### system architecture
+
+![arc](https://github.com/Kuan-K/2025_kuan_project/blob/main/%E7%AD%86%E8%A8%98%E5%9C%96%E7%89%87/%E6%9E%B6%E6%A7%8B%E5%9C%96F.png)
 ### check the ip address about CN and gNB
 
 Use the following command to find the IP address.
@@ -55,10 +58,10 @@ Modify the following two parts
 GNB_IPV4_ADDRESS_FOR_NG_AMF/NGU = OAI CN5G bridge oai-cn5g
 
  amf_ip_address = amf_ip_addres
-### start the gNB with (NTN-LEO example)
+### start the gNB with (NTN-GEO example 官方)
 ```
 cd ~/openairinterface5g/cmake_targets/ran_build/build
-./nr-softmodem --rfsim -O ../../../ci-scripts/conf_files/gnb.sa.band254.u0.25prb.rfsim.ntn-leo_test1.conf
+./nr-softmodem --rfsim -O ../../../ci-scripts/conf_files/gnb.sa.band254.u0.25prb.rfsim.ntn.conf
 ```
 
 ### Start the nrUE
@@ -66,8 +69,15 @@ cd ~/openairinterface5g/cmake_targets/ran_build/build
 Run the nrUE from a third terminal
 ```
 cd ~/openairinterface5g/cmake_targets/ran_build/build
-sudo ./nr-uesoftmodem --rfsim --band 254 -C 2488400000 --CO -873500000 -r 25 --numerology 0 --ssb 60 --rfsimulator.prop_delay 238.74 --num-ul-actors 1 --num-dl-actors 1 -O ../../../ci-scripts/conf_files/nrue.uicc.ntn-leo.conf
+./nr-uesoftmodem --rfsim --band 254 -C 2488400000 --CO -873500000 -r 25 --numerology 0 --ssb 60 --rfsimulator.prop_delay 238.74 -O ../../../ci-scripts/conf_files/nrue.uicc.ntn.conf
 ```
+
+### result
+
+
+
+
+
 *** output (UE log)
 ```
 [PHY]    Initial sync: pbch decoded sucessfully, ssb index 0
