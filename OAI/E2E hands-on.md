@@ -1,4 +1,4 @@
-# OAI E2E hands-on
+# OAI TN E2E hands-on
 
 > Reference :
 > - [5G RAN Workshop 2025](https://gitlab.eurecom.fr/oai/trainings/oai-workshops/-/tree/main/ran)
