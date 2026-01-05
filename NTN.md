@@ -10,9 +10,8 @@
 ## TOC
 1. 摘要
 2. 5G NR協定
-3. NTN架構
-4. NTN 的主要問題
-5. 延遲補償（Delay Compensation）
+3. NTN 的主要問題
+4. 延遲補償（Delay Compensation）
 
 ---
 
@@ -43,6 +42,8 @@
     最終連接到 UPF (User Plane Function)
 * 控制平面 (Control Plane)內部： 負責處理信令（Signaling），目標是管理連線的建立與維護。
     最終連接到 AMF (Access and Mobility Management Function)
+  
+  [note] [核心網](https://github.com/Kuan-K/2025_kuan_project/edit/main/OAI/5GCNcode#study-note-ntn-backgroumd-knowledge)
 #### 各層介紹
 * SDAP (Service Data Adaptation Protocol,服務數據適應協定)
   * 任務： 這是 5G 中的最頂層協定，其唯一的任務是將服務品質 (QoS) 流映射到特定的「無線承載 (Radio Bearer)」。
@@ -64,7 +65,7 @@
       2. 不確認模式 (Unacknowledged Mode, UM)
          這種模式負責處理數據的分段，但「不負責檢查對方是否收到」。
       3. 確認模式 (Acknowledged Mode, AM)
-         這是最複雜且最可靠的模式，除了分段功能外，它使用 ARQ（自動重傳請求） 機制。如果發送端沒收到接收端的確認（ACK），或者收到錯誤通知（NACK），就會重新發送遺失的數據碎片。
+         這是最複雜且最可靠的模式，除了分段功能外，它使用 [ARQ](https://github.com/Kuan-K/2025_kuan_project/edit/main/NTN.md#harqarq)（自動重傳請求） 機制。如果發送端沒收到接收端的確認（ACK），或者收到錯誤通知（NACK），就會重新發送遺失的數據碎片。
          
 * MAC (Medium Access Control,媒體存取控制)
   * 任務：負責調度哪位用戶在何時可以傳輸，來自 RLC 層的小碎片多工處理 (Multiplex) 成一個大的傳輸區塊 (Transport Block)；調度 (Scheduling)、邏輯通道優先級排序、透過 HARQ (混合自動重傳請求) 進行錯誤校正，以及通道映射。
@@ -80,7 +81,7 @@
     
 * NAS (Non-Access Stratum,非接入層)
   * 功能：(UE $\leftrightarrow$ CN) 負責 UE 與核心網 (AMF/SMF) 之間的移動性管理、對談管理與安全控制。
-## 4. : NTN 的主要問題
+## 3. : NTN 的主要問題
 
 ### PHY
   1. 定時提前 (Timing Adavance, TA)：
@@ -96,29 +97,22 @@
      
      標準的MAC層HARQ在衛星的常往返延遲下無法使用，因為會導致整條鏈路停滯。
 
-     3GPP的解法是：讓HARQ 回饋（feedback）變成可設定項(LEO必較有可能)，
-     並在許多情況下直接關閉。
+     3GPP的解法是：讓HARQ 回饋（feedback）變成可設定項(LEO)，或是在大多情況下直接關閉(GEO,MEO,HEO)。
      
-     *** HARQ/ARQ
-     
+     #### HARQ/ARQ
+          
          HARQ(Hybird Automatic Repeat Request)：
-     
-         當接受訊號有錯，如果錯誤是微小的則自動修復，如錯誤過大則請求重傳，並將新資料與舊資料合併再解碼
-     
-         ARQ：
-     
+         當接受訊號有錯，如果錯誤是微小的則自動修復，如錯誤過大則請求重傳，並將新資料與舊資料合併再解碼     
+         ARQ：     
          經過Hard處理後訊號大多已完整，或是訊號剩下可接受的範圍，而ARQ負責處理HARQ的殘餘錯誤，發現錯誤後直接丟棄不做合併。
-
          *HARQ在PHY運作，由MAC控制
           ARQ在RLC層運作
 
   2. 可靠性：
      
-    當 HARQ 被關閉後，
-    可靠性機制會上移到更高一層 —— RLC 層的「確認模式（Acknowledged Mode, RLC-AM）」。
-    RLC-AM 雖然速度較慢，
-    但能在長延遲環境下運作，
-    確保資料在遺失時仍能被重新傳送。
+     當 HARQ 被關閉後，可靠性機制會上移到更高一層 —— RLC 層的「確認模式（Acknowledged Mode, RLC-AM）」。
+
+     RLC-AM 雖然速度較慢，但能在長延遲環境下運作，確保資料在遺失時仍能被重新傳送。
 
   ## 4. Task 4: 延遲補償（Delay Compensation）
   在地面 5G 中，基地台（gNB）會告訴手機（UE）應該如何調整它的時間（Timing）。
@@ -139,14 +133,14 @@
      
      在地面 5G：
 
-    gNB 測量延遲
-    gNB 發 Timing Advance（TA） 給 UE
-    UE 依照 TA 調整上行傳輸時間
-    但在 NTN：
-    等 gNB 的 TA 指令回到 UE 時，衛星可能已經移動
+      gNB 測量延遲
+      gNB 發 Timing Advance（TA） 給 UE
+      UE 依照 TA 調整上行傳輸時間
+      但在 NTN：
+      等 gNB 的 TA 指令回到 UE 時，衛星可能已經移動
 
-    這代表 gNB 計算的 TA 已經是錯的
-    → 無法即時補償
+      這代表 gNB 計算的 TA 已經是錯的
+      → 無法即時補償
   2. 巨大的多普勒頻移（Large Doppler Shift）：
 
       衛星速度非常高（LEO 約 7.8 km/s），
