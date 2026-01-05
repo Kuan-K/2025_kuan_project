@@ -9,23 +9,37 @@
 
 ## TOC
 1. 摘要
-2. NTN架構
-3. NTN 的主要問題
-4. 延遲補償（Delay Compensation）
+2. 5G NR協定
+3. NTN架構
+4. NTN 的主要問題
+5. 延遲補償（Delay Compensation）
 
 ---
 
-## 1. Task 1: 摘要
+## 1. : 摘要
   NTN技術就是整合衛星與5G架構，藉由衛星來連接，擴大服務範圍，讓沒有辦法架設硬體的偏遠地區也能受到服務。
-## 2. Task 2: NTN架構
-  NTN有兩種模Ttransparent Mode 與 Regenerative Mode，兩種架構圖如下:
+  ![NTN_Fig1](https://github.com/Kuan-K/2025_kuan_project/blob/main/%E7%AD%86%E8%A8%98%E5%9C%96%E7%89%87/3GPP%20NTN%20Architecture%20Overview.png)
+* User Equipments (UE) : 使用者設備，例如手機
+* Satellite : 衛星
+* Gateway : 地面閘道站
+* Service link：UE 與衛星之間的連線
+* Feeder link：衛星與Gateway之間的連線
+* Beam footprint：衛星波束覆蓋的區域
+### NTN有兩種模Ttransparent Mode 與 Regenerative Mode，兩種架構圖如下:
   
-   Ttransparent Mode：衛星只做轉傳信號，不做處理信號，只是作為一個點接收訊號後直接傳送不會動到訊號。
+   Ttransparent Mode：衛星只做轉傳信號，不做處理信號，只是作為一個點接收訊號後直接傳送不會動到訊號。 方塊圖 [trans](https://github.com/Kuan-K/2025_kuan_project/blob/main/%E7%AD%86%E8%A8%98%E5%9C%96%E7%89%87/%E6%96%B9%E5%A1%8A%E6%A8%A1%E6%93%AC%E5%9C%96leo_tran_F.png)
    
-   Regenerative Mode：衛星可做解碼處理信號，衛星像是一個太空中的基地台，而不只是轉傳訊號。
+   Regenerative Mode：衛星可做解碼處理信號，衛星像是一個太空中的基地台，而不只是轉傳訊號。 方塊圖 [regen](https://github.com/Kuan-K/2025_kuan_project/blob/main/%E7%AD%86%E8%A8%98%E5%9C%96%E7%89%87/%E6%96%B9%E5%A1%8A%E6%A8%A1%E6%93%AC%E5%9C%96leo_regen_F.png)
    
   ![NTN_Fig2](https://github.com/user-attachments/assets/3c7a4f8f-ef87-4388-ba6c-236efd8d0433)
-## 3. Task 3: NTN 的主要問題
+## 2. : 5G NR協定堆疊(Protocol Stack)
+  在3GPP NTN 中，無線介面沿用 5G NR Protocol Stack。
+  
+  <img width="355" height="391" alt="image" src="https://github.com/user-attachments/assets/807024da-4f9e-4055-8ce0-f7982d86ae3d" />
+![NTN_Fig2]
+
+
+## 4. : NTN 的主要問題
 
 ### PHY
   1. 定時提前 (Timing Adavance, TA)：
