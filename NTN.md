@@ -5,7 +5,9 @@
 > 
 >   3GPP TR 38.821
 > 
->   3GPP TS 38.211 
+>   3GPP TS 38.211
+>
+>   3GPP TS 38.331 
 
 ## TOC
 1. 摘要
@@ -15,7 +17,7 @@
 
 ---
 
-## 1. : 摘要
+## 1.  摘要
   NTN技術就是整合衛星與5G架構，藉由衛星來連接，擴大服務範圍，讓沒有辦法架設硬體的偏遠地區也能受到服務。
   ![NTN_Fig1](https://github.com/Kuan-K/2025_kuan_project/blob/main/%E7%AD%86%E8%A8%98%E5%9C%96%E7%89%87/3GPP%20NTN%20Architecture%20Overview.png)
 * User Equipments (UE) : 使用者設備，例如手機
@@ -32,7 +34,7 @@
    
   ![NTN_Fig2](https://github.com/user-attachments/assets/3c7a4f8f-ef87-4388-ba6c-236efd8d0433)
   
-## 2. : 5G NR協定堆疊(Protocol Stack)
+## 2. 5G NR協定堆疊(Protocol Stack)
 
   在3GPP NTN 中，無線介面沿用 5G NR Protocol Stack。
   
@@ -84,7 +86,7 @@
 * NAS (Non-Access Stratum,非接入層)
   * 功能：(UE $\leftrightarrow$ CN) 負責 UE 與核心網 (AMF/SMF) 之間的移動性管理、對談管理與安全控制。
   * 
-## 3. : NTN 的主要問題
+## 3. NTN 的主要問題
 
 ### PHY
   1. 定時提前 (Timing Adavance, TA)：
@@ -117,7 +119,7 @@
 
      RLC-AM 雖然速度較慢，但能在長延遲環境下運作，確保資料在遺失時仍能被重新傳送。
 
-  ## 4. : 延遲補償（Delay Compensation）
+  ## 4. 延遲補償（Delay Compensation）
   
   在地面 5G 中，基地台（gNB）會告訴手機（UE）應該如何調整它的時間（Timing）。
   但在 NTN 中，延遲太大了，無法像地面 5G 一樣讓 gNB 即時回饋。
@@ -176,3 +178,140 @@
 
       如此一來，無線訊號在傳輸過程中受到多普勒效應「拉回到正確頻率」，
       最後到達衛星時頻率剛好正確。
+
+
+## 5. System information blocks Type 19 (SIB 19)
+### 摘要
+  SIB19是3GPP在TS 38.331 R17中新加入的，專為NTN設計的SIB，裡面包含了ntn的資訊如星曆資料、共同定時偏移等，SIB19對於NTN的接入是必要的如果沒有，UE將會無法接入，SIB19裡面包含幾個重要參數ntn-Config、t-Service等，在r18又針對LEO高速移動的特性，加入numberOfMsg4HARQ-ACK-Repetitions、t-ServiceStart等參數。
+ ### 接受到後的動作
+   當ue接收到sib19時，會啟動或是重啟T430 timer，數值應設為該serving cell的ntn-UlSyncValidityDuration，計時應從該cell的 epochTime（參考時間點）開始計算。
+   
+[note] T430 timer是NTN特有的計時器用來監控上行同步資訊是否過期。 如果T430過期代表UE知道的衛星位置資訊已經太舊，誤差大到不能再傳送，必須停止上行傳輸並刻重新讀取 SIB19 以更新衛星軌道參數，到新的 SIB19後才能繼續傳送資料。
+### SIB19重要的參數
+```
+SIB19-r17 ::= SEQUENCE {
+ ntn-Config-r17 NTN-Config-r17 OPTIONAL, -- Need R
+ t-Service-r17 INTEGER (0..549755813887) OPTIONAL, -- Need R
+ referenceLocation-r17 ReferenceLocation-r17 OPTIONAL, -- Need R
+ distanceThresh-r17 INTEGER(0..65525) OPTIONAL, -- Need R
+ ntn-NeighCellConfigList-r17 NTN-NeighCellConfigList-r17 OPTIONAL, -- Need R
+}
+```
+<table>
+  <tr>
+    <td>ntn-Config NTN 配置</td>
+    <td> 衛星資料 https://github.com/Kuan-K/2025_kuan_project/edit/main/NTN.md#ntn-config </td>
+  </tr>
+  <tr>
+    <td>t-Service 服務截止時間</td>
+    <td>告訴UE這顆衛星什麼時候會飛離服務範圍、停止服務，讓手機提前做好斷線重連或切換的準備</td>
+  </tr>
+  <tr>
+    <td>referenceLocation 參考位置</td>
+    <td>對於固定對準地面的衛星，提供一個地面的基準座標</td>
+  </tr>
+  <tr>
+    <td>distanceThresh 距離臨界值</td>
+    <td>規定手機移動超過多少距離需要重新進行定位量測，在 LEO 高速移動時可判斷UE是否還在服務區，單位是50m</td>
+  </tr>
+  <tr>
+    <td>ntn-NeighCellConfigList 鄰區清單</td>
+    <td>列出附近其他衛星的資料。如果這顆衛星快飛走了，手機可以提前看這張清單，準備換手（Handover）到下一顆</td>
+  </tr>
+  <table>
+
+### NTN-CovEnh與SatSwitchWithReSync(R18針對LEO新加入的)
+```
+NTN-CovEnh-r18 ::= SEQUENCE {
+  numberOfMsg4HARQ-ACK-Repetitions-r18 BIT STRING (SIZE(4)),
+  rsrp-ThresholdMsg4HARQ-ACK-r18 RSRP-Range OPTIONAL -- Need R
+}
+
+SatSwitchWithReSync-r18 ::= SEQUENCE {
+  t-ServiceStart-r18 INTEGER (0..549755813887) OPTIONAL, -- Need R
+  ssb-TimeOffset-r18 INTEGER (0..159) OPTIONAL -- Need R
+```
+<table>
+  <tr>
+    <td>numberOfMsg4HARQ-ACK-Repetitions Msg4 重複傳送次數</td>
+    <td>在連線初期RACH中的Msg4，手機回報收到的訊號要回傳幾次(1,2,4,8)，在訊號很弱的衛星環境下，確保gNB一定能聽見UE的回應</td>
+  </tr>
+  <tr>
+    <td>rsrp-ThresholdMsg4HARQ-ACK 啟動重複傳送臨界值</td>
+    <td>手機量測收訊品質，如果低於這個門檻，執行Msg4 重複傳送的機制</td>
+  </tr>
+  <tr>
+    <td>t-ServiceStart 開始服務時間</td>
+    <td>新衛星預計何時開始覆蓋UE所在的區域</td>
+  </tr>
+  <tr>
+    <td>ssb-TimeOffset SSB 時間偏移</td>
+    <td>告訴手機下一顆衛星發出的同步訊號（SSB），跟現在這顆衛星在時間上差了幾個子幀（subframe）</td>
+  </tr>
+  <table>
+
+### ntn config
+重要的參數與資訊
+```
+  NTN-Config-r17 ::= SEQUENCE {
+      epochTime-r17 EpochTime-r17 OPTIONAL, -- Need R
+      ntn-UlSyncValidityDuration-r17 ENUMERATED{ s5, s10, s15, s20, s25, s30, s35,
+                                                     s40, s45, s50, s55, s60, s120, s180, s240, s900} OPTIONAL
+      cellSpecificKoffset-r17 INTEGER(1..1023) OPTIONAL, -- Need R
+      kmac-r17 INTEGER(1..512) OPTIONAL, -- Need R
+      ta-Info-r17 TA-Info-r17 OPTIONAL, -- Need R
+      ephemerisInfo-r17 EphemerisInfo-r17 OPTIONAL, -- Need R
+      ta-Report-r17 ENUMERATED {enabled} OPTIONAL, -- Need R
+```
+<table>
+  <tr>
+    <td>欄位名稱</td>
+    <td>說明</td>
+  </tr>
+  <tr>
+    <td>epochTime 參考時間點</td>
+    <td>星曆資料的「起算時間」；所有軌道計算都要有一個開始的時間點，讓UE知道這組座標是哪一秒開始生效的</td>
+  </tr>
+  <tr>
+    <td>ntn-UlSyncValidityDuration 上行同步有效期限</td>
+    <td>資訊的「保存期限」；衛星移動很快，這一秒的資料可能下一秒就不能用了，這個數值也是T340 Timer的總長度時間到就會重抓SIB19</td>
+  </tr>
+  <tr>
+    <td>cellSpecificKoffset 小區特定偏移量</td>
+    <td>訊號傳輸的「緩衝預留時間」，衛星與UE距離太遠，這個參數告訴UE排程時要額外多等幾個slot，才不會訊號沒到就過期</td>
+  </tr>
+  <tr>
+    <td>kmac gNB端偏移量</td>
+    <td>gNB端的「定時微調」，當上下行時間沒對準，用此參數來修正</td>
+  </tr>
+  <tr>
+    <td>TA-Info 定時提前(TA)資訊</td>
+    <td>共同定時提前量、漂移率、變化率</td>
+  </tr>
+  <tr>
+    <td>ephemerisInfo 衛星資訊</td>
+    <td>衛星的位置與速率</td>
+  </tr>
+  <tr>
+    <td>ta-Report TA 報告</td>
+    <td>啟用「回報機制」，告訴手機在連線時，是否要向基地台回報自己計算出的 TA 補償資訊。</td>
+  </tr>
+</table>
+
+#### TA info
+```
+  TA-Info-r17 ::= SEQUENCE {
+      ta-Common-r17 INTEGER(0..66485757), # 共同定時提前量
+      ta-CommonDrift-r17 INTEGER(-257303..257303) OPTIONAL, -- Need R # 共同 TA 漂移率
+      ta-CommonDriftVariant-r17 INTEGER(0..28949) # 共同 TA 漂移變化率
+```
+#### ephemerisInfo
+```
+PositionVelocity-r17 ::= SEQUENCE {
+  positionX-r17 PositionStateVector-r17, # x軸座標
+  positionY-r17 PositionStateVector-r17, # y軸座標
+  positionZ-r17 PositionStateVector-r17, # z軸座標
+  velocityVX-r17 VelocityStateVector-r17, # x軸速率
+  velocityVY-r17 VelocityStateVector-r17, # y軸速率
+  velocityVZ-r17 VelocityStateVector-r17  # z軸速率
+```
