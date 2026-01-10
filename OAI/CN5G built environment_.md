@@ -93,7 +93,7 @@ docker compose up -d
 ```
 ### Check whether the containers are healthy
 ```
-watch -n 1 docker compose -f docker-compose.yml ps -a
+watch -n 1 docker compose -f docker-compose.yaml ps -a
 ```
 **Output**
 <img width="1840" height="233" alt="image" src="https://github.com/user-attachments/assets/bb20ea4b-8cdd-4556-9851-b08f08680e7c" />
