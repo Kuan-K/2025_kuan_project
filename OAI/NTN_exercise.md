@@ -58,10 +58,10 @@ Modify the following two parts
 GNB_IPV4_ADDRESS_FOR_NG_AMF/NGU = OAI CN5G bridge oai-cn5g
 
  amf_ip_address = amf_ip_addres
-### start the gNB with (NTN-GEO example 官方)
+### start the gNB with (NTN-LEO example 官方)
 ```
 cd ~/openairinterface5g/cmake_targets/ran_build/build
-./nr-softmodem --rfsim -O ../../../ci-scripts/conf_files/gnb.sa.band254.u0.25prb.rfsim.ntn.conf
+./nr-softmodem --rfsim -O ../../../ci-scripts/conf_files/gnb.sa.band254.u0.25prb.rfsim.ntn-leo-copy.conf
 ```
 
 ### Start the nrUE
@@ -69,7 +69,7 @@ cd ~/openairinterface5g/cmake_targets/ran_build/build
 Run the nrUE from a third terminal
 ```
 cd ~/openairinterface5g/cmake_targets/ran_build/build
-./nr-uesoftmodem --rfsim --band 254 -C 2488400000 --CO -873500000 -r 25 --numerology 0 --ssb 60 --rfsimulator.prop_delay 238.74 -O ../../../ci-scripts/conf_files/nrue.uicc.ntn.conf
+./nr-uesoftmodem -O ../targets/PROJECTS/GENERIC-NR-5GC/CONF/ue.conf --band 254 -C 2488400000 --CO -873500000 -r 25 --numerology 0 --ssb 60 --rfsim --rfsimulator.prop_delay 20 --rfsimulator.options chanmod --time-sync-I 0.1 --ntn-initial-time-drift -46 --initial-fo 57340 --cont-fo-comp 2
 ```
 
 ### result
@@ -142,3 +142,9 @@ but the RACH/RAR mapping can still fail to match the preamble because of timing 
 
 ### 模組與程式碼參數對照方塊圖
 <img width="771" height="800" alt="方塊對照圖" src="https://github.com/user-attachments/assets/1df78cf6-6bc4-44ca-bf96-9948ca63449c" />
+
+
+
+### log 關鍵訊息
+
+ 
