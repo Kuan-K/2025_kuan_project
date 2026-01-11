@@ -147,8 +147,8 @@ OAI 的 rfsimulator 使用 TCP 連線。通常 gNB（基站）是 Server，UE（
 
     當 OAI 想要「接收訊號」時，它呼叫 rfsimulator_read（從 Socket 讀取對方的資料並套用通道模型）。
     rfsimulator_read的關鍵有一個rfsimulator_read_beam的func他主要為了模擬天線的陣列，可以先理解為把資料讀進來的過程
-    
-    
 
+### apply_channelmod.c
+    
 
 
