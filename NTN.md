@@ -85,7 +85,22 @@
     
 * NAS (Non-Access Stratum,非接入層)
   * 功能：(UE $\leftrightarrow$ CN) 負責 UE 與核心網 (AMF/SMF) 之間的移動性管理、對談管理與安全控制。
-  * 
+
+  ### RACH
+  
+  Msg1:PRACH (UE 發 preamble)
+  Msg2:Random Access Response ,RAR (gNB 回 RAR)
+  Msg3: RRC Setup Request(UE 發送自己的身分識別與建立連線的請求。)
+  Msg4: RRC Setup / Contention Resolution(gNB 確認連線，此後 UE 正式進入 RRC_CONNECTED 狀態)
+
+  比喻
+  * 走進飲料店說:「我要點餐」 店員沒空所以先給你號碼牌 (Msg1)
+    *  你不知道店員什麼時候有空，店員也先只知道有個客人拿了號碼牌
+  * 店員喊 :　「輪到幾號點餐了」(Msg2)
+  * 走到櫃台，跟店員說：「我叫阿寬，我要一杯拿鐵」(Msg3)
+  * 店員說：「好，阿寬，這是你的客戶編號 123，麻煩到旁邊等叫號。」(Msg4)
+  
+
 ## 3. NTN 的主要問題
 
 ### PHY
@@ -200,7 +215,8 @@ SIB19-r17 ::= SEQUENCE {
 <table>
   <tr>
     <td>ntn-Config NTN 配置</td>
-    <td> 衛星資料 https://github.com/Kuan-K/2025_kuan_project/edit/main/NTN.md#ntn-config </td>
+    <td> <a href="https://github.com/Kuan-K/2025_kuan_project/edit/main/NTN.md#ntn-config">
+        衛星資料 </a> </td>
   </tr>
   <tr>
     <td>t-Service 服務截止時間</td>
@@ -315,3 +331,20 @@ PositionVelocity-r17 ::= SEQUENCE {
   velocityVY-r17 VelocityStateVector-r17, # y軸速率
   velocityVZ-r17 VelocityStateVector-r17  # z軸速率
 ```
+## 6. flowchart and MSC
+### flowchart
+<img width="649" height="771" alt="flowchart about UE(RACH)" src="https://github.com/user-attachments/assets/8651b26c-de13-4d8b-bcca-c8c0f463f2a7" />
+
+從gNB廣播MIB/SIB1/SIB19 UE 接收到資訊後，透過GNSS知道自身位置後計算預補償，接著進入RACH
+[note]
+* 在TRAN模式中所有UE與gNB傳送資料都須經過SAT
+* 在REGEN模式中SAT即是gNB
+  
+### MSC
+#### TRANS Mode
+  <img width="721" height="602" alt="MSC about TRANS" src="https://github.com/user-attachments/assets/042ef218-5926-4c1f-8610-6b33bb1846b8" />
+
+
+#### REGEN Mode
+  <img width="481" height="602" alt="MSC about REGEN" src="https://github.com/user-attachments/assets/2a092889-f8b3-4df8-970d-52bf15909be7" />
+
