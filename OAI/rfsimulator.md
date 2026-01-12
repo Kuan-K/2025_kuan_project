@@ -256,7 +256,7 @@ if (channelDesc->Doppler_phase_inc != 0.0) {
 每個採樣點處理後，Doppler_phase_cur 都會遞增一個 Doppler_phase_inc，模擬衛星高速移動造成的連續相位偏移。
 
 ### service link vs feeder link
-* server link是直接算出doopler在實體層直接做旋轉或偏移
+* server link是直接算出delay 跟 doopler直接做旋轉或偏移
 * feeder link則是用三點估計法計算偏移量，再用nr_update_sib19 去重新更新sib19，因此REGEN 因為沒有進入迴圈 REGEN更新到的有關feeder link sib19中相關參數如(drift與delay)會為0。
     
 
