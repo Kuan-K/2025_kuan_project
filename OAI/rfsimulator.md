@@ -96,6 +96,11 @@ Quoted from ([model lists](https://gitlab.eurecom.fr/oai/openairinterface5g/-/bl
 ### 摘要
   在 OAI 中扮演的是「虛擬射頻卡（Virtual RF Device）」的角色，原本 OAI 訊號應該送往 USRP 等硬體設備，但 rfsimulator 攔截了這些 IQ Samples（同相正交訊號），透過網路（TCP Sockets）在基站（gNB）與終端（UE）之間傳遞，並在過程中「加料」來模擬通道效應。在標準的 rfsimulator 中，它通常不區分這兩段。它將「基站 $\rightarrow$ 衛星 $\rightarrow$ 終端」視為一個整體的 End-to-End Channel。
 
+### 簡易架構圖
+<img width="691" height="651" alt="flowchart about rfsim_c" src="https://github.com/user-attachments/assets/716512b4-c813-45f3-9aa4-6a855b14355a" />
+
+圖中紅框內為rfsimulator.cpp的程式架構圖，UE或gNB會用rfsimulator_write寫入IQ樣本，rfsimulator_state會有靜態的初值，接著rfsim可以用rxAddInput進入 apply chaneelmod.c 接著可以會根據通道模型更新動態的IQ樣本如delay、drift等，另一端即可用rfsimulator_read讀取資料。
+
 ### [rfsimulator.cpp](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/radio/rfsimulator/simulator.cpp?ref_type=heads)
   #### device_init
   讀取參數、時間/延遲設定、函數指針掛載、對外接口設定
@@ -107,8 +112,10 @@ Quoted from ([model lists](https://gitlab.eurecom.fr/oai/openairinterface5g/-/bl
     rfsimulator->sample_rate = openair0_cfg->sample_rate;
     rfsimulator_readconfig(rfsimulator);
     ```
-    抓取基本硬體參數如(天線數、採樣率)
-    rfsimulator_readconfig(rfsimulator); # 會去抓取設定檔中關於rfsimulator的參數，例如判斷他是server or client 、 使用的通道模型等
+
+  * 抓取基本硬體參數如(天線數、採樣率、頻寬)，網路連線參數(IP位址、通訊port)
+  * rfsimulator_readconfig(rfsimulator); # 會去抓取設定檔中關於rfsimulator的參數，例如判斷他是server or client 、 使用的通道模型等
+
   ##### 傳播延遲(時間/延遲設定)
     ```
     if (rfsimulator->prop_delay_ms > 0.0)
@@ -117,11 +124,13 @@ Quoted from ([model lists](https://gitlab.eurecom.fr/oai/openairinterface5g/-/bl
       rfsimulator->prop_delay_ms = rfsimulator->chan_offset * 1000 / rfsimulator->sample_rate;
       LOG_I(HW, "propagation delay %f ms, %lu samples\n", rfsimulator->prop_delay_ms, rfsimulator->chan_offset);}
     ```
-    程式將你設定的毫秒級延遲（prop_delay_ms）轉換成採樣點數量（samples）。
-    計算方式：rfsimulator->sample_rate * rfsimulator->prop_delay_ms / 1000
-    在 NTN 中，如果設定 10ms 的延遲，chan_offset 就會告訴模擬器在發送訊號時要「往後推」多少採樣點。這就是模擬 Feeder Link 長距離傳輸的初步實作。
 
-  ##### Server vs Client(對外接口設定)
+  * 程式將你設定的毫秒級延遲（prop_delay_ms）轉換成採樣點數量（samples）。
+  * 計算方式：rfsimulator->sample_rate * rfsimulator->prop_delay_ms / 1000
+  * 在 NTN 中，如果設定 10ms 的延遲，chan_offset 就會告訴模擬器在發送訊號時要「往後推」多少採樣點。這就是模擬 Feeder Link 長距離傳輸的初步實作。
+
+##### Server vs Client(對外接口設定)
+
   ```
     device->trx_start_func = rfsimulator->role == SIMU_ROLE_SERVER ? startServer : startClient;
     device->trx_get_stats_func = rfsimulator_get_stats;
@@ -131,16 +140,16 @@ Quoted from ([model lists](https://gitlab.eurecom.fr/oai/openairinterface5g/-/bl
     device->trx_set_freq_func = rfsimulator_set_freq;
     device->trx_set_gains_func = rfsimulator_set_gains;
   ```
-OAI 的 rfsimulator 使用 TCP 連線。通常 gNB（基站）是 Server，UE（終端）是 Client。這裡就是在確定腳色設定無誤。
-  ##### 攔截訊號 (函數指針掛載)
+
+* OAI 的 rfsimulator 使用 TCP 連線。通常 gNB（基站）是 Server，UE（終端）是 Client。這裡就是在確定腳色設定無誤。
+##### 攔截訊號 (函數指針掛載)
   ```
     device->trx_write_func = rfsimulator_write;
     device->trx_read_func = rfsimulator_read;
   ```
-    當 OAI 想要「送出訊號」到天線時，它其實是呼叫了 rfsimulator_write（把資料寫入 Socket 傳給對方）。
-
-    當 OAI 想要「接收訊號」時，它呼叫 rfsimulator_read（從 Socket 讀取對方的資料並套用通道模型）。
-    rfsimulator_read的關鍵有一個rfsimulator_read_beam的func他主要為了模擬天線的陣列，可以先理解為把資料讀進來的過程
+* 當 OAI 想要「送出訊號」到天線時，它其實是呼叫了 rfsimulator_write（把資料寫入 Socket 傳給對方）。
+* 當 OAI 想要「接收訊號」時，它呼叫 rfsimulator_read（從 Socket 讀取對方的資料並套用通道模型）。
+    rfsimulator_read的關鍵有一個rfsimulator_read_beam的func他主要為了模擬天線的陣列，就是把資料讀進來的過程
 
 ### [apply_channelmod.c](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/radio/rfsimulator/apply_channelmod.c?ref_type=heads)
   #### update_channel_model
