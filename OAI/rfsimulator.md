@@ -228,7 +228,8 @@ OAI 的 rfsimulator 使用 TCP 連線。通常 gNB（基站）是 Server，UE（
             .velocity.Z = vel_sat_z / 0.06,
   ```
   
-  * 每 100ms 觸發一次
+  * 每 100ms 觸發一次更新sib19的資訊
+  * 除1.3與0.06是為了符合SIB19定義的整數單位
   * 用三點估計法計算 t、t+5、t+10 秒後的 Feeder Link 距離，解出衛星相對於基站的速度與加速度
   #### rxAddInput
   訊號效應加工
@@ -244,5 +245,9 @@ if (channelDesc->Doppler_phase_inc != 0.0) {
 
   ```
 每個採樣點處理後，Doppler_phase_cur 都會遞增一個 Doppler_phase_inc，模擬衛星高速移動造成的連續相位偏移。
+
+### service link vs feeder link
+* server link是直接算出doopler在實體層直接做旋轉或偏移
+* feeder link則是用三點估計法計算偏移量，再用nr_update_sib19 去重新更新sib19，因此REGEN 因為沒有進入迴圈 REGEN更新到的有關feeder link sib19中相關參數如(drift與delay)會為0。
     
 
