@@ -1,4 +1,4 @@
-# NTN_exercise.
+<img width="1331" height="694" alt="image" src="https://github.com/user-attachments/assets/f3974f5b-ecb2-4ccb-90e0-00d407ffe254" /># NTN_exercise.
 
 > Reference :
 > - [5G RAN Workshop 2025](https://gitlab.eurecom.fr/oai/trainings/oai-workshops/-/tree/main/ran)
@@ -60,16 +60,25 @@ GNB_IPV4_ADDRESS_FOR_NG_AMF/NGU = OAI CN5G bridge oai-cn5g
  amf_ip_address = amf_ip_addres
 ### start the gNB with (NTN-LEO example 官方)
 ```
-cd ~/openairinterface5g/cmake_targets/ran_build/build
-./nr-softmodem --rfsim -O ../../../ci-scripts/conf_files/gnb.sa.band254.u0.25prb.rfsim.ntn-leo-copy.conf
+cd ~/openairinterface5g/cmake_targets
+sudo ./ran_build/build/nr-softmodem -O ../ci-scripts/conf_files/gnb.sa.band254.u0.25prb.rfsim.ntn-leo-copy.conf
 ```
 
 ### Start the nrUE
 
 Run the nrUE from a third terminal
 ```
-cd ~/openairinterface5g/cmake_targets/ran_build/build
-./nr-uesoftmodem -O ../targets/PROJECTS/GENERIC-NR-5GC/CONF/ue.conf --band 254 -C 2488400000 --CO -873500000 -r 25 --numerology 0 --ssb 60 --rfsim --rfsimulator.prop_delay 20 --rfsimulator.options chanmod --time-sync-I 0.1 --ntn-initial-time-drift -46 --initial-fo 57340 --cont-fo-comp 2
+cd ~/openairinterface5g/cmake_targets
+sudo ./ran_build/build/nr-uesoftmodem -O ../targets/PROJECTS/GENERIC-NR-5GC/CONF/ue.conf --band 254 -C 2488400000 --CO -873500000 -r 25 --numerology 0 --ssb 60 --rfsim --rfsimulator.prop_delay 20 --rfsimulator.options chanmod --time-sync-I 0.1 --ntn-initial-time-drift -46 --initial-fo 57340 --cont-fo-comp 2
+```
+
+### GEO
+```
+cd ~/openairinterface5g/cmake_targets
+sudo ./ran_build/build/nr-softmodem -O ../ci-scripts/conf_files/gnb.sa.band254.u0.25prb.rfsim.ntn.conf --rfsim
+
+cd ~/openairinterface5g/cmake_targets
+sudo ./ran_build/build/nr-uesoftmodem -O ../targets/PROJECTS/GENERIC-NR-5GC/CONF/ue.conf --band 254 -C 2488400000 --CO -873500000 -r 25 --numerology 0 --ssb 60 --rfsim --rfsimulator.prop_delay 238.74
 ```
 
 ### result
@@ -143,8 +152,43 @@ but the RACH/RAR mapping can still fail to match the preamble because of timing 
 ### 模組與程式碼參數對照方塊圖
 <img width="771" height="800" alt="方塊對照圖" src="https://github.com/user-attachments/assets/1df78cf6-6bc4-44ca-bf96-9948ca63449c" />
 
-
-
-### log 關鍵訊息
-
+### log 資訊
+ #### gNB
+ ##### 在正常情況下
  
+<img width="803" height="218" alt="image" src="https://github.com/user-attachments/assets/d694c685-f8e1-4d66-9da0-dd0718af3a80" />
+
+從
+```
+[NGAP]   Send NGSetupRequest to AMF
+[NGAP]   Received NGSetupResponse from AMF
+```
+可以看到 NGAP 的連線
+
+<img width="1331" height="694" alt="image" src="https://github.com/user-attachments/assets/18f68959-baf4-47c4-a1e4-04faa8dc04ba" />
+
+從第一行 可以對照參數是否正確
+
+從第二行可以看到gNB 成功偵測到 UE 發出的 Preamble（編號 24），代表 UE 已經同步並嘗試連線。
+
+從第六行可以看到gNB 發出 Msg2 (Random Access Response)
+
+在圖片中間Received Ack of Msg4.可以看出競爭隨機接入 (CBRA) 正式成功。這意味著 物理層與 MAC 層的握手已完成，UE 正式與基地台連上。
+##### 錯誤排查
+
+#### UE
+<img width="1202" height="687" alt="螢幕擷取畫面 2026-01-12 210820" src="https://github.com/user-attachments/assets/3eb48ae8-38d3-4288-b6a8-13c58f753c2e" />
+
+Initial sync: pbch decoded successfully: 初始同步成功，成功解碼實體廣播通道 (PBCH)。
+
+Initial sync successful, PCI: 0: 初始同步完成。
+
+Found SIB1/SIB2/SIB19:偵測到 SIB1/SIB2/SIB19。
+
+[NR_MAC] [UE 0][RAPROC][882.6] Found RAR with the intended RAPID 59:UE 確認收到了正確的 RAR 回應。
+
+[MAC]    [UE 0][932.3][RAPROC] 4-Step RA procedure succeeded. CBRA: Contention Resolution is successful.:四步式隨機接入成功。代表 UE 與 gNB 已經在 MAC 層連上線了。
+
+<img width="903" height="53" alt="image" src="https://github.com/user-attachments/assets/cc7b0bf1-3514-4e59-86e4-8483ba5a9caf" />
+
+代表上行鏈路穩定 70/0 代表發送了 70 個封包，錯誤為 0
