@@ -102,7 +102,7 @@ service Link:主要是模擬多普勒頻移（Doppler）和多路徑衰落（Fad
 
 feeder Link:主要是模擬巨大的傳播延遲 (Propagation Delay)
 
-### rfsimulator.cpp
+### [rfsimulator.cpp](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/radio/rfsimulator/simulator.cpp?ref_type=heads)
   #### device_init
   讀取參數、時間/延遲設定、函數指針掛載、對外接口設定
 
@@ -148,7 +148,107 @@ OAI 的 rfsimulator 使用 TCP 連線。通常 gNB（基站）是 Server，UE（
     當 OAI 想要「接收訊號」時，它呼叫 rfsimulator_read（從 Socket 讀取對方的資料並套用通道模型）。
     rfsimulator_read的關鍵有一個rfsimulator_read_beam的func他主要為了模擬天線的陣列，可以先理解為把資料讀進來的過程
 
-### apply_channelmod.c
-    
+### [apply_channelmod.c](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/radio/rfsimulator/apply_channelmod.c?ref_type=heads)
+  #### update_channel_model
+    在每一段數據處理前執行，計算當前時間點下的衛星狀態
+  ##### 初始化與計算動態座標
+  ```
+  const double radius_earth = 6377900; // m
+  const double radius_sat = radius_earth + channelDesc->sat_height;
+  const double GM_earth = 3.986e14; // m^3/s^2
+  const double w_sat = sqrt(GM_earth / (radius_sat * radius_sat * radius_sat)); // rad/s
 
+  const double start_phase = -acos(radius_earth / radius_sat); // SAT is just rising above the horizon
+  const double end_phase = -start_phase; // SAT is just falling behind the horizon
+
+  const double pos_sat_x = 0;
+  const double pos_sat_y = radius_sat * sin(w_sat * t);
+  const double pos_sat_z = radius_sat * cos(w_sat * t);
+
+  const double vel_sat_x = 0;
+  const double vel_sat_y = w_sat * radius_sat * cos(w_sat * t);
+  const double vel_sat_z = -w_sat * radius_sat * sin(w_sat * t);
+  ```
+
+  * 順時位置 pos_sat 地球半徑*(sin與cos)
+  * 速度向量 vel_sat
+
+  ##### 鏈路延遲 (Propagation Delay)
+    ```
+    const double dist_ue_sat = sqrt(dir_ue_sat_x * dir_ue_sat_x + dir_ue_sat_y * dir_ue_sat_y + dir_ue_sat_z * dir_ue_sat_z);
+      const double vel_ue_sat = (vel_sat_x * dir_ue_sat_x + vel_sat_y * dir_ue_sat_y + vel_sat_z * dir_ue_sat_z) / dist_ue_sat;
+    if (channelDesc->modelid == SAT_LEO_TRANS) {  
+        const double dir_sat_gnb_x = pos_gnb_x - pos_sat_x;
+        const double dir_sat_gnb_y = pos_gnb_y - pos_sat_y;
+        const double dir_sat_gnb_z = pos_gnb_z - pos_sat_z;
+        dist_sat_gnb = sqrt(dir_sat_gnb_x * dir_sat_gnb_x + dir_sat_gnb_y * dir_sat_gnb_y + dir_sat_gnb_z * dir_sat_gnb_z);}
+
+     const double prop_delay = (dist_ue_sat + dist_sat_gnb) / c;
+      if (channelDesc->enable_dynamic_delay)
+        channelDesc->channel_offset = prop_delay * channelDesc->sampling_rate;
+    ```
+
+  * Service Link 計算ue與sat之間的距離 sqrt(x^2+y^2+z^2)
+  * Feeder Link 在REGEN模式下沒有，而在TRANS模式下會計算sat與gnb之間距離
+  * 延遲=(dist_ue_sat + dist_sat_gnb) / c;
+
+  ##### 多普勒頻移 (Doppler Shift)
+    ```
+     const double f_Doppler_shift_ue_sat = (-vel_ue_sat / c) * channelDesc->center_freq;
+      if (channelDesc->enable_dynamic_Doppler)
+        channelDesc->Doppler_phase_inc = 2 * M_PI * f_Doppler_shift_ue_sat / channelDesc->sampling_rate;
+    ```    
+  
+  * 多普勒頻移 (Doppler Shift)  Doppler_DL= (-vel_ue_sat)*f_center/c
+  * 多普勒相位增量 (Phase Increment) Doppler_phase = (2*pi*f_Doppler)/sampling_rate
+
+  #### nr_update_sib19
+  ```
+        const double t5 = t + 5;
+        const double t10 = t + 10;
+
+        const double pos_gnb_x = 0;
+        const double pos_gnb_y = 0;
+        const double pos_gnb_z = radius_earth;
+
+        const double pos_sat_x5 = 0;
+        const double pos_sat_y5 = radius_sat * sin(w_sat * t5);
+        const double pos_sat_z5 = radius_sat * cos(w_sat * t5);
+
+        const double pos_sat_x10 = 0;
+        const double pos_sat_y10 = radius_sat * sin(w_sat * t10);
+        const double pos_sat_z10 = radius_sat * cos(w_sat * t10);
+
+   if (abs_subframe % 10 == 0) { // update SIB19 information for the next frame
+        gnb_sat_position_update_t sat_position = {
+            .sfn = (abs_subframe / 10 + 1) % 1024,
+            .subframe = 0,
+            .delay = 2 * dist_sat_gnb / (c * 4.072e-9),
+            .drift = 2 * vel_sat_gnb / (c * 0.2e-9),
+            .accel = 2 * acc_sat_gnb / (c * 0.2e-10),
+            .position.X = pos_sat_x / 1.3,
+            .position.Y = pos_sat_y / 1.3,
+            .position.Z = pos_sat_z / 1.3,
+            .velocity.X = vel_sat_x / 0.06,
+            .velocity.Y = vel_sat_y / 0.06,
+            .velocity.Z = vel_sat_z / 0.06,
+  ```
+  
+  * 每 100ms 觸發一次
+  * 用三點估計法計算 t、t+5、t+10 秒後的 Feeder Link 距離，解出衛星相對於基站的速度與加速度
+  #### rxAddInput
+  訊號效應加工
+  ```
+  const double pathLossLinear = pow(10, channelDesc->path_loss_dB / 20.0);
+
+
+if (channelDesc->Doppler_phase_inc != 0.0) {
+  double complex out = in * cexp(Doppler_phase_cur * I);
+  rx_tmp.r = creal(out);
+  rx_tmp.i = cimag(out);
+  Doppler_phase_cur += channelDesc->Doppler_phase_inc;}
+
+  ```
+每個採樣點處理後，Doppler_phase_cur 都會遞增一個 Doppler_phase_inc，模擬衛星高速移動造成的連續相位偏移。
+    
 
