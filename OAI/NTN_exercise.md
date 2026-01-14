@@ -1,14 +1,14 @@
-<img width="1331" height="694" alt="image" src="https://github.com/user-attachments/assets/f3974f5b-ecb2-4ccb-90e0-00d407ffe254" /># NTN_exercise.
+# OAI NTN E2E hands-on
 
 > Reference :
 > - [5G RAN Workshop 2025](https://gitlab.eurecom.fr/oai/trainings/oai-workshops/-/tree/main/ran)
 > - https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/ci-scripts/conf_files/gnb.sa.band254.u0.25prb.rfsim.ntn-leo.conf
 > - https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/ci-scripts/conf_files/nrue.uicc.ntn-leo.conf
 
-### system architecture
+## system architecture
 
 ![arc](https://github.com/Kuan-K/2025_kuan_project/blob/main/%E7%AD%86%E8%A8%98%E5%9C%96%E7%89%87/%E6%9E%B6%E6%A7%8B%E5%9C%96F.png)
-### check the ip address about CN and gNB
+## check the ip address about CN and gNB
 
 Use the following command to find the IP address.
 ```
@@ -31,7 +31,7 @@ docker inspect <amf-container-name> | grep "IPAddress"
 
 amf_ip_addres = 192.168.70.132
 
-### Change the gNB configuration
+## Change the gNB configuration
 First, make a copy of gnb.sa.band254.u0.25prb.rfsim.ntn-leo.conf. Then open the copied file, find the code shown above
 ```
     # ------- SCTP definitions
@@ -58,10 +58,15 @@ Modify the following two parts
 GNB_IPV4_ADDRESS_FOR_NG_AMF/NGU = OAI CN5G bridge oai-cn5g
 
  amf_ip_address = amf_ip_addres
-### start the gNB with (NTN-LEO example 官方)
+## start the gNB with (NTN-LEO example 官方)
 ```
 cd ~/openairinterface5g/cmake_targets
-sudo ./ran_build/build/nr-softmodem -O ../ci-scripts/conf_files/gnb.sa.band254.u0.25prb.rfsim.ntn-leo-copy.conf
+
+sudo ./ran_build/build/nr-softmodem -O ../ci-scripts/conf_files/gnb.sa.band254.u0.25prb.rfsim.ntn.conf --rfsim #GEO執行這行
+
+sudo ./ran_build/build/nr-softmodem -O ../ci-scripts/conf_files/gnb.sa.band254.u0.25prb.rfsim.ntn-leo-copy.conf #LEO執行這行
+
+
 ```
 
 ### Start the nrUE
@@ -69,23 +74,37 @@ sudo ./ran_build/build/nr-softmodem -O ../ci-scripts/conf_files/gnb.sa.band254.u
 Run the nrUE from a third terminal
 ```
 cd ~/openairinterface5g/cmake_targets
-sudo ./ran_build/build/nr-uesoftmodem -O ../targets/PROJECTS/GENERIC-NR-5GC/CONF/ue.conf --band 254 -C 2488400000 --CO -873500000 -r 25 --numerology 0 --ssb 60 --rfsim --rfsimulator.prop_delay 20 --rfsimulator.options chanmod --time-sync-I 0.1 --ntn-initial-time-drift -46 --initial-fo 57340 --cont-fo-comp 2
+
+sudo ./ran_build/build/nr-uesoftmodem -O ../targets/PROJECTS/GENERIC-NR-5GC/CONF/ue.conf --band 254 -C 2488400000 --CO -873500000 -r 25 --numerology 0 --ssb 60 --rfsim --rfsimulator.prop_delay 238.74 # GEO執行這行
+
+sudo ./ran_build/build/nr-uesoftmodem -O ../targets/PROJECTS/GENERIC-NR-5GC/CONF/ue.conf --band 254 -C 2488400000 --CO -873500000 -r 25 --numerology 0 --ssb 60 --rfsim --rfsimulator.prop_delay 20 --rfsimulator.options chanmod --time-sync-I 0.1 --ntn-initial-time-drift -46 --initial-fo 57340 --cont-fo-comp 2 #LEO執行這行
 ```
+
+## result
 
 ### GEO
-```
-cd ~/openairinterface5g/cmake_targets
-sudo ./ran_build/build/nr-softmodem -O ../ci-scripts/conf_files/gnb.sa.band254.u0.25prb.rfsim.ntn.conf --rfsim
 
-cd ~/openairinterface5g/cmake_targets
-sudo ./ran_build/build/nr-uesoftmodem -O ../targets/PROJECTS/GENERIC-NR-5GC/CONF/ue.conf --band 254 -C 2488400000 --CO -873500000 -r 25 --numerology 0 --ssb 60 --rfsim --rfsimulator.prop_delay 238.74
-```
+#### ping test
+UE to DN (UL,RTN)
 
-### result
+<img width="760" height="287" alt="image" src="https://github.com/user-attachments/assets/4326720f-4fb5-4c6b-a1b4-dc68fae21c4f" />
 
+DN to UE (DL,FWR)
 
+<img width="638" height="287" alt="image" src="https://github.com/user-attachments/assets/aac8d2ce-4159-424b-a99a-bd377c07e96a" />
 
+#### iperf3
+UE to DN (UL,RTN)
 
+<img width="791" height="381" alt="image" src="https://github.com/user-attachments/assets/69f85534-ea3c-4d7c-8d88-1e421b7b9ea3" />
+
+DN to UE (DL,FWR)
+
+<img width="801" height="360" alt="image" src="https://github.com/user-attachments/assets/665cc911-edf9-4f27-8cd4-cb4dcb062c4c" />
+
+[note] 設定 -b 8Mbps 是因為GEO 模擬環境頻寬上限就大概在 8-10 Mbps 左右 已使用 -50M確認過
+
+### LEO
 
 *** output (UE log)
 ```
@@ -147,10 +166,68 @@ You can see this line:
 ```
 This means the system is taking into account a ~238 ms propagation delay,
 but the RACH/RAR mapping can still fail to match the preamble because of timing offsets.
+### 在核網新增新的UE資訊 (以更改 IMSI = '0010100007487' 其他key opc等都不變為例)
+1. 進入MySQL 容器
+```
+docker exec -it mysql mariadb -u root -p
+mysql -u root -p # 預設密碼為linux
+
+USE oai_db; # 切換至 oai 資料庫
+```
+2. 可以先進入核網的資料夾確認 UE 的格式(oai-cn5g/docker-compose/database/oai_db.sql)
+```
+--
+-- Dumping data for table `AuthenticationSubscription`
+--
+
+INSERT INTO `AuthenticationSubscription` (`ueid`, `authenticationMethod`, `encPermanentKey`, `protectionParameterId`, `sequenceNumber`, `authenticationManagementField`, `algorithmId`, `encOpcKey`, `encTopcKey`, `vectorGenerationInHss`, `n5gcAuthMethod`, `rgAuthenticationInd`, `supi`) VALUES
+    ('001010000000001', '5G_AKA', 'fec86ba6eb707ed08905757b1bb44b8f', 'fec86ba6eb707ed08905757b1bb44b8f', '{\"sqn\": \"000000000000\", \"sqnScheme\": \"NON_TIME_BASED\", \"lastIndexes\": {\"ausf\": 0}}', '8000', 'milenage', 'C42449363BBAD02B66D16BC975D77CC1', NULL, NULL, NULL, NULL, '001010000000001');
+INSERT INTO `AuthenticationSubscription` (`ueid`, `authenticationMethod`, `encPermanentKey`, `protectionParameterId`, `sequenceNumber`, `authenticationManagementField`, `algorithmId`, `encOpcKey`, `encTopcKey`, `vectorGenerationInHss`, `n5gcAuthMethod`, `rgAuthenticationInd`, `supi`) VALUES
+    ('001010000000002', '5G_AKA', 'fec86ba6eb707ed08905757b1bb44b8f', 'fec86ba6eb707ed08905757b1bb44b8f', '{\"sqn\": \"000000000000\", \"sqnScheme\": \"NON_TIME_BASED\", \"lastIndexes\": {\"ausf\": 0}}', '8000', 'milenage', 'C42449363BBAD02B66D16BC975D77CC1', NULL, NULL, NULL, NULL, '001010000000002');
+INSERT INTO `AuthenticationSubscription` (`ueid`, `authenticationMethod`, `encPermanentKey`, `protectionParameterId`, `sequenceNumber`, `authenticationManagementField`, `algorithmId`, `encOpcKey`, `encTopcKey`, `vectorGenerationInHss`, `n5gcAuthMethod`, `rgAuthenticationInd`, `supi`) VALUES
+    ('001010000000003', '5G_AKA', 'fec86ba6eb707ed08905757b1bb44b8f', 'fec86ba6eb707ed08905757b1bb44b8f', '{\"sqn\": \"000000000000\", \"sqnScheme\": \"NON_TIME_BASED\", \"lastIndexes\": {\"ausf\": 0}}', '8000', 'milenage', 'C42449363BBAD02B66D16BC975D77CC1', NULL, NULL, NULL, NULL, '001010000000003');
+INSERT INTO `AuthenticationSubscription` (`ueid`, `authenticationMethod`, `encPermanentKey`, `protectionParameterId`, `sequenceNumber`, `authenticationManagementField`, `algorithmId`, `encOpcKey`, `encTopcKey`, `vectorGenerationInHss`, `n5gcAuthMethod`, `rgAuthenticationInd`, `supi`) VALUES
+    ('001010000000004', '5G_AKA', 'fec86ba6eb707ed08905757b1bb44b8f', 'fec86ba6eb707ed08905757b1bb44b8f', '{\"sqn\": \"000000000000\", \"sqnScheme\": \"NON_TIME_BASED\", \"lastIndexes\": {\"ausf\": 0}}', '8000', 'milenage', 'C42449363BBAD02B66D16BC975D77CC1', NULL, NULL, NULL, NULL, '001010000000004');
+
+```
+3. 新增身分驗證資料 (Authentication)
+   增加key與 opc
+   ```
+   INSERT INTO AuthenticationSubscription (ueid, authenticationMethod, encPermanentKey, protectionParameterId, sequenceNumber, authenticationManagementField, algorithmId, encOpcKey, supi)
+SELECT '0010100007487', authenticationMethod, encPermanentKey, protectionParameterId, sequenceNumber, authenticationManagementField, algorithmId, encOpcKey, '0010100007487'
+FROM AuthenticationSubscription WHERE ueid = '001010000000001';
+   ```
+4. 新增接入與移動性資料 (Access & Mobility)
+   ```
+INSERT INTO AccessAndMobilitySubscriptionData (ueid, servingPlmnId, gpsis, internalGroupIds, sharedVnGroupDataIds, nssai)
+SELECT '0010100007487', servingPlmnId, gpsis, internalGroupIds, sharedVnGroupDataIds, nssai
+FROM AccessAndMobilitySubscriptionData WHERE ueid = '001010000000001';
+   ```
+5. 新增會話管理資料 (Session Management)
+   ```
+INSERT INTO SessionManagementSubscriptionData (ueid, servingPlmnId, singleNssai, dnnConfigurations)
+SELECT '0010100007487', servingPlmnId, singleNssai, dnnConfigurations
+FROM SessionManagementSubscriptionData WHERE ueid = '001010000000001'
+   ```
+6. 驗證結果
+
+<img width="1451" height="437" alt="image" src="https://github.com/user-attachments/assets/d93985c5-807a-4b31-b30e-f3dc4dfb86e3" />
+
+可以看到IMSI = '0010100007487' 的UE已經可以跑通了
+
+7. 查看有哪些UE資訊合法(option)
+```
+USE oai_db;
+
+SELECT 
+    ueid AS IMSI, 
+    encPermanentKey AS 'Key (K)', 
+    encOpcKey AS OPc 
+FROM AuthenticationSubscription;
+```
+<img width="811" height="278" alt="image" src="https://github.com/user-attachments/assets/a44d4a4f-172c-442a-998b-c8af6d5b2a06" />
 
 
-### 模組與程式碼參數對照方塊圖
-<img width="771" height="800" alt="方塊對照圖" src="https://github.com/user-attachments/assets/1df78cf6-6bc4-44ca-bf96-9948ca63449c" />
 
 ### log 資訊
  #### gNB
