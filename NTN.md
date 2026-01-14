@@ -11,9 +11,12 @@
 
 ## TOC
 1. 摘要
-2. 5G NR協定
+2. 5G NR協定堆疊(Protocol Stack)與RACH
 3. NTN 的主要問題
 4. 延遲補償（Delay Compensation）
+5. LEO 衛星特性與基本參數
+6. System information blocks Type 19 (SIB 19)
+7. UE 的 NTN 接取流程 
 
 ---
 
@@ -26,7 +29,7 @@
 * Service link：UE 與衛星之間的連線
 * Feeder link：衛星與Gateway之間的連線
 * Beam footprint：衛星波束覆蓋的區域
-### NTN有兩種模Ttransparent Mode 與 Regenerative Mode，兩種架構圖如下:
+### NTN有兩種模Transparent Mode 與 Regenerative Mode，兩種架構圖如下:
   
    Ttransparent Mode：衛星只做轉傳信號，不做處理信號，只是作為一個點接收訊號後直接傳送不會動到訊號。 方塊圖 [trans](https://github.com/Kuan-K/2025_kuan_project/blob/main/%E7%AD%86%E8%A8%98%E5%9C%96%E7%89%87/%E6%96%B9%E5%A1%8A%E6%A8%A1%E6%93%AC%E5%9C%96leo_tran_F.png)
    
@@ -34,7 +37,7 @@
    
   ![NTN_Fig2](https://github.com/user-attachments/assets/3c7a4f8f-ef87-4388-ba6c-236efd8d0433)
   
-## 2. 5G NR協定堆疊(Protocol Stack)
+## 2. 5G NR協定堆疊(Protocol Stack)與RACH
 
   在3GPP NTN 中，無線介面沿用 5G NR Protocol Stack。
   
@@ -195,7 +198,34 @@
       最後到達衛星時頻率剛好正確。
 
 
-## 5. System information blocks Type 19 (SIB 19)
+## 5. LEO 衛星特性與基本參數
+  
+![NTN_Fig1](https://github.com/user-attachments/assets/96f8afb3-c615-45de-9ac8-b3370c56f2dc)
+
+針對LEO做介紹
+
+LEO軌道特性
+
+* 軌道高度：介於 500 km – 2,000 km 之間 (3GPP模擬常用600/1200km)
+* 移動速度：約 7.5 km/s
+* 週期：約 90 – 120 分鐘 繞行地球一圈
+* 傳播延遲 (Propagation Delay)
+  * 單向延遲 (One-way Delay) 約為2ms - 10ms
+  * RTT(Round Trip time) 約 8 ms – 40 ms (UE 到 SAT 在從 SAT 到 gNB)所以是4倍(Ttransparent Mode)
+* 多普勒頻移(Doppler Shift)
+  * 在S-band(2Ghz)最大多普勒頻移大約為± 50.0 kHz
+  * 基本計算公式 $$f_d = \frac{v_r}{c} \cdot f_c$$
+* 路徑耗損
+  * 自由空間損耗 (FSPL)隨距離，在衛星高度600km使用S-band下大約為174 db 代表訊號強度會衰減 $10^{17.4}$ 倍
+  * 基本計算公式 $$Loss = 20\log_{10}(d) + 20\log_{10}(f) + 20\log_{10}\left(\frac{4\pi}{c}\right)$$
+
+[note] S-band 根據IEEE定義，S-band指的是頻率範圍在 2 GHz – 4 GHz，是目前 3GPP 針對非地面網路 (NTN) 專門劃分的頻段。常使用s-band是因為它具備較強的抗雨衰能力，且其波長適合整合進普通智慧型手機的天線設計中。
+
+[note] FSPL 因為能量擃散而產生的衰減；能量向四面八方均勻發射能量，能量會平均分布在一個球型表面上，而距離越長代表表面積越大，所以單位面積接收到的功率密度之大幅下降。
+ 
+
+## 6. System information blocks Type 19 (SIB 19)
+
 ### 摘要
   SIB19是3GPP在TS 38.331 R17中新加入的，專為NTN設計的SIB，裡面包含了ntn的資訊如星曆資料、共同定時偏移等，SIB19對於NTN的接入是必要的如果沒有，UE將會無法接入，SIB19裡面包含幾個重要參數ntn-Config、t-Service等，在r18又針對LEO高速移動的特性，加入numberOfMsg4HARQ-ACK-Repetitions、t-ServiceStart等參數。
  ### 接受到後的動作
@@ -331,7 +361,7 @@ PositionVelocity-r17 ::= SEQUENCE {
   velocityVY-r17 VelocityStateVector-r17, # y軸速率
   velocityVZ-r17 VelocityStateVector-r17  # z軸速率
 ```
-## 6. flowchart and MSC
+## 7. UE 的 NTN 接取流程
 ### flowchart
 <img width="649" height="771" alt="flowchart about UE(RACH)" src="https://github.com/user-attachments/assets/8651b26c-de13-4d8b-bcca-c8c0f463f2a7" />
 
@@ -348,3 +378,25 @@ PositionVelocity-r17 ::= SEQUENCE {
 #### REGEN Mode
   <img width="481" height="602" alt="MSC about REGEN" src="https://github.com/user-attachments/assets/2a092889-f8b3-4df8-970d-52bf15909be7" />
 
+### 接取流程解析
+
+#### 1.Cell Search
+UE 會掃描 S-band 頻段，尋找 PSS (主同步訊號) 與 SSS (輔助同步訊號)。 當成功找到並同步，UE 成功鎖定Cell並解析出 MIB
+
+#### 2.讀取SIB1/SIB/SIB19
+UE 解析 SIB19獲得星曆資料、Epoch Time 與 ta-common等資料
+
+#### 3.UE 自主定位與計算 (GNSS & Self-Location)
+UE 啟動內建的 GNSS (如 GPS) 以獲取自己的經緯度與高度。
+* 算距離：UE 計算自身位置與 SIB19 提供之衛星位置間的直線距離 D
+* 算延遲：計算單向傳播延遲 $T = D / c$
+* 算頻移：計算都普勒頻移
+
+#### 4.預補償 (Pre-compensation)
+* 時間補償：UE 會主動提前發送訊號，提前的時間為$2 \times T + ta-common$
+* 頻率補償：UE 將上行頻率主動加上或減去都普勒頻移
+#### 5.隨機接入(RACH)
+如同前面介紹的RACH
+不過在NTN中，因為訊號跑很久，基地台會透過 SIB19 告知一個 k-Offset，讓 UE「等久一點」再開啟接收視窗，避免過早放棄連線。
+
+在LEO因為極大的都普勒頻移常在這裡出現RAR reception failed 或是 RAR received but preamble doesn’t match的狀況
