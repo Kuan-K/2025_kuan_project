@@ -1,16 +1,22 @@
-# RF-simulator
+# Study Note : RF-simulator
 
 > Reference :
 > - [RF simulator](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/radio/rfsimulator/README.md)
 > - [Channel Modeling](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair1/SIMULATION/TOOLS/DOC/channel_simulation.md)
 > - [NTN channel](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/doc/RUNMODEM.md?ref_type=heads#ntn-channel)
 
+
+## TOC
+1. General
+2. Channel Modeling
+3. RFsimulator重要函式與模擬邏輯
+
 ## General
   The RF simulator allows you to test OAI without a physical RF board. It replaces the real RF board driver and can simulate a simple channel.
 
 As much as possible, it works like an RF board, but not in real-time: It can run faster than real-time if there is enough CPU, or slower (it is CPU-bound instead of real-time RF sampling-bound).
 
-## Architecture
+### Architecture
 
 The left part runs only once, like an initialization, and it reads parameters, channel models, etc. The right part, on the other hand, runs in a loop and keeps reading data
 
@@ -18,7 +24,7 @@ The left part runs only once, like an initialization, and it reads parameters, c
 
 Quoted from ([Architecture](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/radio/rfsimulator/README.md?plain=0#architecture))
 
-## Useful options
+### Useful options
 
 | CL option                        | usage                                                                          | default                |
 |:---------------------            |:-------------------------------------------------------------------------------|----:                   |
@@ -37,7 +43,7 @@ Quoted from ([overview](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/
 In the context of wireless communications, a channel model refers to a mathematical model used to simulate how the transmission medium affects signal propagation. These models take into account factors such as attenuation, interference, and fading, all of which influence the quality of communication between the transmitter and the receiver.
 
 
-## channel parameter
+### channel parameter
 ```
 channel_desc_t *new_channel_desc_scm(uint8_t nb_tx, #  發射天線數量
                                      uint8_t nb_rx, #  接收天線數量
@@ -66,7 +72,7 @@ and that channel configuration file will be loaded as well.
 The same idea applies to the UE: at the end of its own configuration file, it includes the same file or another channel configuration file.
 - *note* The included channelmod_rfsimu.conf file must be placed in the same directory as the gNB/UE configuration file; otherwise, the include statement will not be able to find it.
 
-## Model lists
+### Model lists
 
 In OAI’s channel simulation configuration file, you can define multiple model lists.
 When the system starts, it loads one list according to the value specified by the modellist parameter.
