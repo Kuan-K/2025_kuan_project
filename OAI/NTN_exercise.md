@@ -175,6 +175,7 @@ mysql -u root -p # 預設密碼為linux
 USE oai_db; # 切換至 oai 資料庫
 ```
 2. 可以先進入核網的資料夾確認 UE 的格式(oai-cn5g/docker-compose/database/oai_db.sql)
+   
 ```
 --
 -- Dumping data for table `AuthenticationSubscription`
@@ -190,21 +191,26 @@ INSERT INTO `AuthenticationSubscription` (`ueid`, `authenticationMethod`, `encPe
     ('001010000000004', '5G_AKA', 'fec86ba6eb707ed08905757b1bb44b8f', 'fec86ba6eb707ed08905757b1bb44b8f', '{\"sqn\": \"000000000000\", \"sqnScheme\": \"NON_TIME_BASED\", \"lastIndexes\": {\"ausf\": 0}}', '8000', 'milenage', 'C42449363BBAD02B66D16BC975D77CC1', NULL, NULL, NULL, NULL, '001010000000004');
 
 ```
+
 3. 新增身分驗證資料 (Authentication)
+
    增加key與 opc
-   ```
-   INSERT INTO AuthenticationSubscription (ueid, authenticationMethod, encPermanentKey, protectionParameterId, sequenceNumber, authenticationManagementField, algorithmId, encOpcKey, supi)
+```
+INSERT INTO AuthenticationSubscription (ueid, authenticationMethod, encPermanentKey, protectionParameterId, sequenceNumber, authenticationManagementField, algorithmId, encOpcKey, supi)
 SELECT '0010100007487', authenticationMethod, encPermanentKey, protectionParameterId, sequenceNumber, authenticationManagementField, algorithmId, encOpcKey, '0010100007487'
 FROM AuthenticationSubscription WHERE ueid = '001010000000001';
-   ```
+```
 4. 新增接入與移動性資料 (Access & Mobility)
-   ```
+   
+```
 INSERT INTO AccessAndMobilitySubscriptionData (ueid, servingPlmnId, gpsis, internalGroupIds, sharedVnGroupDataIds, nssai)
 SELECT '0010100007487', servingPlmnId, gpsis, internalGroupIds, sharedVnGroupDataIds, nssai
 FROM AccessAndMobilitySubscriptionData WHERE ueid = '001010000000001';
-   ```
+```
+
 5. 新增會話管理資料 (Session Management)
-   ```
+ 
+```
 INSERT INTO SessionManagementSubscriptionData (ueid, servingPlmnId, singleNssai, dnnConfigurations)
 SELECT '0010100007487', servingPlmnId, singleNssai, dnnConfigurations
 FROM SessionManagementSubscriptionData WHERE ueid = '001010000000001'
@@ -216,6 +222,7 @@ FROM SessionManagementSubscriptionData WHERE ueid = '001010000000001'
 可以看到IMSI = '0010100007487' 的UE已經可以跑通了
 
 7. 查看有哪些UE資訊合法(option)
+
 ```
 USE oai_db;
 
@@ -225,6 +232,7 @@ SELECT
     encOpcKey AS OPc 
 FROM AuthenticationSubscription;
 ```
+
 <img width="811" height="278" alt="image" src="https://github.com/user-attachments/assets/a44d4a4f-172c-442a-998b-c8af6d5b2a06" />
 
 
