@@ -106,66 +106,37 @@ DN to UE (DL,FWR)
 
 ### LEO
 
-*** output (UE log)
-```
-[PHY]    Initial sync: pbch decoded sucessfully, ssb index 0
-[PHY]    pbch rx ok. rsrp:51 dB/RE, adjust_rxgain:-1 dB
-[NR_PHY] Cell Detected with GSCN: 0, SSB SC offset: 60
-...
-[PHY]    UE synchronized! decoded_frame_rx=686 ...
-[NR_RRC] SIB1 decoded
-[NR_RRC] Found SIB2
-[NR_RRC] Found SIB19
-```
-This means:
-  1. Cell search and synchronization succeeded ✅
-     * The gNB’s SSB was found
-     * The frequency offset and timing offset were measured and corrected.
-  2. MIB/SIB1/SIB2/SIB19 were successfully decoded ✅
-     * The UE has already obtained the system information (including the RACH configuration, frequency allocation, NTN timing offset, etc.)
-       
-So at this point, the PHY and the RRC system information are completely fine; the gNB is definitely transmitting, and you are receiving it correctly.
+#### wireshark
 
-Next, you will see a large number of repeated messages:
-```
-[MAC]    Initialization of 4-Step CBRA procedure
-[NR_MAC] PRACH scheduler: Selected RO Frame ...
-[PHY]    PRACH [UE 0] in frame.slot ... preambleIndex = XX
-[MAC]    [UE 0] RAR reception failed
-```
-sometimes
-```
-[PHY]    [UE 0] RAR-Msg2 decoded
-[NR_MAC] ... Got BI RAR subPDU 5 ms
-[NR_MAC] ... Got RAPID RAR subPDU
-[NR_MAC] ... Received RAR preamble (6) doesn't match the intended RAPID (28)
-[MAC]    [UE 0] RAR reception failed
-```
-This part is doing the 4-step Random Access procedure:
-  1. The UE sends Msg1 (preamble) on the PRACH resources.In the log, that’s the line like:PRACH [UE 0] ... preambleIndex = XX
-  2. The gNB should reply with Msg2 (RAR, Random Access Response).
-  3. After the UE receives the RAR, it checks whether the preamble index (RAPID) inside the RAR is the same as the one it sent.
-     * If it matches → success, move on to the next step (send RRC Connection Request).
-     * If it doesn’t match / nothing is received → treat it as a failure and try again.
-These two cases appear in the log.
-  * RAR not received:
-    
-    → RAR reception failed
-    
-  * RAR received but preamble doesn’t match:
-    
-    → Received RAR preamble (xx) doesn't match the intended RAPID (yy)
-    
-    → This means that RAR is “for someone else,” not for this UE.
+<img width="1671" height="221" alt="image" src="https://github.com/user-attachments/assets/8e7de77e-6c18-41c8-81e1-829f21684b74" />
 
-This is because, in NTN scenario, there is a large NTN delay and a more complex RACH mapping relationship.
+#### UE log
 
-You can see this line:
-```
-[PHY] k_offset = 40 ms (40 slots), total_ta_ms ≈ 37 ms, computed timing_advance ≈ 28x000 samples
-```
-This means the system is taking into account a ~238 ms propagation delay,
-but the RACH/RAR mapping can still fail to match the preamble because of timing offsets.
+<img width="1811" height="722" alt="image" src="https://github.com/user-attachments/assets/7832a71d-7757-4ba1-9186-79fa9fefb317" />
+
+#### amf log
+
+<img width="1451" height="217" alt="image" src="https://github.com/user-attachments/assets/08f53427-894b-4afd-80f1-a835b64c5988" />
+
+#### ping test
+
+UE to DN (UL,RTN)
+
+<img width="765" height="291" alt="image" src="https://github.com/user-attachments/assets/c67d04c2-c6e9-451e-b113-594c491e5305" />
+
+DN to UE (DL,FWR)
+
+<img width="642" height="288" alt="image" src="https://github.com/user-attachments/assets/dc090367-cb13-4d49-8b77-90c22152f790" />
+
+#### iperf3
+UE to DN (UL,RTN)
+
+<img width="792" height="379" alt="image" src="https://github.com/user-attachments/assets/250a8a77-4cfb-4a8d-b107-2d3b5a6ae0f8" />
+
+DN to UE (DL,FWR)
+
+<img width="790" height="359" alt="image" src="https://github.com/user-attachments/assets/7ec2688c-eece-4135-a1e9-8509eda65ef4" />
+
 ### 在核網新增新的UE資訊 (以更改 IMSI = '0010100007487' 其他key opc等都不變為例)
 1. 進入MySQL 容器
 ```
