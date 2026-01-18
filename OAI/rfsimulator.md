@@ -92,8 +92,6 @@ Quoted from ([model lists](https://gitlab.eurecom.fr/oai/openairinterface5g/-/bl
 
 ## 預計要看的檔案
 
-* [openair1/SIMULATION/TOOLS/multipath_channel.c](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair1/SIMULATION/TOOLS/multipath_channel.c)	最核心的數學檔案。實現了多路徑卷積、多徑效應（Multipath）的計算。
-* [openair1/SIMULATION/TOOLS/random_channel.c](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair1/SIMULATION/TOOLS/random_channel.c)	負責通道模型的初始化與生成（例如生成隨機的衰落係數）。
 * [openair1/SIMULATION/TOOLS/sim.h](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair1/SIMULATION/TOOLS/sim.h)	定義了最重要的數據結構 channel_desc_t，包含了通道的所有參數（延遲、增益、天線數等）。
 * [openair1/SIMULATION/TOOLS/DOC/channel_simulation.md](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair1/SIMULATION/TOOLS/DOC/channel_simulation.md)	官方的技術說明文件，詳細描述了配置參數與模型原理。
 
@@ -208,8 +206,11 @@ Quoted from ([model lists](https://gitlab.eurecom.fr/oai/openairinterface5g/-/bl
         channelDesc->Doppler_phase_inc = 2 * M_PI * f_Doppler_shift_ue_sat / channelDesc->sampling_rate;
     ```    
   
-  * 多普勒頻移 (Doppler Shift)  Doppler_DL= (-vel_ue_sat)*f_center/c
-  * 多普勒相位增量 (Phase Increment) Doppler_phase = (2*pi*f_Doppler)/sampling_rate
+  * 多普勒頻移 (Doppler Shift)
+  * Doppler_shift_ue_sat= $$\Delta f = - \frac{v_{ue_sat}}{c} \cdot f_c$$
+  * Doppler_shift_sat_ue = $$\Delta f = - \frac{v_{ue_sat}}{c-v_{ue_sat}} \cdot f_c$$
+     其中$f_c$ 是中心載波頻率
+  * 多普勒相位增量 (Phase Increment) Doppler_phase = (2*pi*f_Doppler)/sampling_rate # 實際上去影響sample告訴他要頻移多少
 
   #### nr_update_sib19
   ```
@@ -245,7 +246,6 @@ Quoted from ([model lists](https://gitlab.eurecom.fr/oai/openairinterface5g/-/bl
   
   * 每 100ms 觸發一次更新sib19的資訊
   * 除1.3與0.06是為了符合SIB19定義的整數單位
-  * 用三點估計法計算 t、t+5、t+10 秒後的 Feeder Link 距離，解出衛星相對於基站的速度與加速度
   #### rxAddInput
   訊號效應加工
   ```
@@ -263,7 +263,7 @@ if (channelDesc->Doppler_phase_inc != 0.0) {
 
 ### service link vs feeder link
 * server link是直接算出delay 跟 doopler直接做旋轉或偏移
-* feeder link則是用三點估計法計算偏移量，再用nr_update_sib19 去重新更新sib19，因此REGEN 因為沒有進入迴圈 REGEN更新到的有關feeder link sib19中相關參數如(drift與delay)會為0。
+* feeder link則是用三點估計法計算速度與加速度，再用nr_update_sib19 去重新更新sib19，讓UE能夠自己做計算，除了TRANS模式以外，都因為沒有進入迴圈，更新到sib19中相關參數如(drift與delay)會為0。
     
 ### [nr_ntn_l1.c](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/3aad8d774805a03a974f06437584d5f94b68678e/openair1/PHY/NR_UE_TRANSPORT/nr_ntn_l1.c)
 
