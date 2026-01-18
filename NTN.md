@@ -10,17 +10,17 @@
 >   3GPP TS 38.331 
 
 ## TOC
-1. [摘要](#1.摘要)
-2. [5G NR協定堆疊(Protocol Stack)與RACH](#2.5G-NR協定堆疊Protocol-Stack與RACH)
-3. [NTN 的主要問題](#NTN的主要問題)
-4. [延遲補償（Delay Compensation）](#延遲補償Delay-Compensation)
-5. [LEO 衛星特性與基本參數](#LEO-衛星特性與基本參數)
-6. [System information blocks Type 19 (SIB 19)](#System-information-blocks-Type-19-SIB-19)
-7. [UE 的 NTN 接取流程](#UE-的-NTN-接取流程) 
+1. [摘要](#一.摘要)
+2. [5G NR協定堆疊(Protocol Stack)與RACH](#二.5G-NR協定堆疊Protocol-Stack與RACH)
+3. [NTN 的主要問題](#三.NTN的主要問題)
+4. [延遲補償（Delay Compensation）](#四.延遲補償Delay-Compensation)
+5. [LEO 衛星特性與基本參數](#五.LEO-衛星特性與基本參數)
+6. [System information blocks Type 19 (SIB 19)](#六.System-information-blocks-Type-19-SIB-19)
+7. [UE 的 NTN 接取流程](#七.UE-的-NTN-接取流程) 
 
 ---
 
-## 1.摘要
+## 一.摘要
   NTN技術就是整合衛星與5G架構，藉由衛星來連接，擴大服務範圍，讓沒有辦法架設硬體的偏遠地區也能受到服務。
   ![NTN_Fig1](https://github.com/Kuan-K/2025_kuan_project/blob/main/%E7%AD%86%E8%A8%98%E5%9C%96%E7%89%87/3GPP%20NTN%20Architecture%20Overview.png)
 * User Equipments (UE) : 使用者設備，例如手機
@@ -37,7 +37,7 @@
    
   ![NTN_Fig2](https://github.com/user-attachments/assets/3c7a4f8f-ef87-4388-ba6c-236efd8d0433)
   
-## 2.5G NR協定堆疊(Protocol Stack)與RACH
+## 二.5G NR協定堆疊(Protocol Stack)與RACH
 
   在3GPP NTN 中，無線介面沿用 5G NR Protocol Stack。
   
@@ -104,7 +104,7 @@
   * 店員說：「好，阿寬，這是你的客戶編號 123，麻煩到旁邊等叫號。」(Msg4)
   
 
-## 3. NTN的主要問題
+## 三.NTN的主要問題
 
 ### PHY
   1. 定時提前 (Timing Adavance, TA)：
@@ -137,7 +137,7 @@
 
      RLC-AM 雖然速度較慢，但能在長延遲環境下運作，確保資料在遺失時仍能被重新傳送。
 
-  ## 4. 延遲補償（Delay Compensation）
+  ## 四.延遲補償（Delay Compensation）
   
   在地面 5G 中，基地台（gNB）會告訴手機（UE）應該如何調整它的時間（Timing）。
   但在 NTN 中，延遲太大了，無法像地面 5G 一樣讓 gNB 即時回饋。
@@ -198,7 +198,7 @@
       最後到達衛星時頻率剛好正確。
 
 
-## 5. LEO 衛星特性與基本參數
+## 五.LEO 衛星特性與基本參數
   
 ![NTN_Fig1](https://github.com/user-attachments/assets/96f8afb3-c615-45de-9ac8-b3370c56f2dc)
 
@@ -224,7 +224,7 @@ LEO軌道特性
 [note] FSPL 因為能量擃散而產生的衰減；能量向四面八方均勻發射能量，能量會平均分布在一個球型表面上，而距離越長代表表面積越大，所以單位面積接收到的功率密度之大幅下降。
  
 
-## 6. System information blocks Type 19 (SIB 19)
+## 六.System information blocks Type 19 (SIB 19)
 
 ### 摘要
   SIB19是3GPP在TS 38.331 R17中新加入的，專為NTN設計的SIB，裡面包含了ntn的資訊如星曆資料、共同定時偏移等，SIB19對於NTN的接入是必要的如果沒有，UE將會無法接入，SIB19裡面包含幾個重要參數ntn-Config、t-Service等，在r18又針對LEO高速移動的特性，加入numberOfMsg4HARQ-ACK-Repetitions、t-ServiceStart等參數。
@@ -361,7 +361,7 @@ PositionVelocity-r17 ::= SEQUENCE {
   velocityVY-r17 VelocityStateVector-r17, # y軸速率
   velocityVZ-r17 VelocityStateVector-r17  # z軸速率
 ```
-## 7. UE 的 NTN 接取流程
+## 七.UE 的 NTN 接取流程
 ### flowchart
 <img width="649" height="771" alt="flowchart about UE(RACH)" src="https://github.com/user-attachments/assets/8651b26c-de13-4d8b-bcca-c8c0f463f2a7" />
 
