@@ -10,7 +10,7 @@
 >   3GPP TS 38.331 
 
 ## TOC
-1. [摘要](#1.-摘要)
+1. [摘要](#摘要)
 2. [5G NR協定堆疊(Protocol Stack)與RACH](#2.-5G-NR協定堆疊Protocol-Stack與RACH)
 3. [NTN 的主要問題](#NTN的主要問題)
 4. 延遲補償（Delay Compensation）
