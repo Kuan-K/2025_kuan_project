@@ -11,7 +11,7 @@
 
 ## TOC
 1. [摘要](#1.摘要)
-2. [5G NR協定堆疊(Protocol Stack)與RACH](#5G-NR協定堆疊Protocol-Stack與RACH)
+2. [5G NR協定堆疊(Protocol Stack)與RACH](#2.5G-NR協定堆疊Protocol-Stack與RACH)
 3. [NTN 的主要問題](#NTN的主要問題)
 4. [延遲補償（Delay Compensation）](#延遲補償Delay-Compensation)
 5. [LEO 衛星特性與基本參數](#LEO-衛星特性與基本參數)
