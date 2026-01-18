@@ -10,13 +10,13 @@
 >   3GPP TS 38.331 
 
 ## TOC
-1. [摘要](#一.摘要)
-2. [5G NR協定堆疊(Protocol Stack)與RACH](#二.5G-NR協定堆疊Protocol-Stack與RACH)
-3. [NTN 的主要問題](#三.NTN的主要問題)
-4. [延遲補償（Delay Compensation）](#四.延遲補償Delay-Compensation)
-5. [LEO 衛星特性與基本參數](#五.LEO-衛星特性與基本參數)
-6. [System information blocks Type 19 (SIB 19)](#六.System-information-blocks-Type-19-SIB-19)
-7. [UE 的 NTN 接取流程](#七.UE-的-NTN-接取流程) 
+1. [摘要](#一摘要)
+2. [5G NR協定堆疊(Protocol Stack)與RACH](#二5G-NR協定堆疊Protocol-Stack與RACH)
+3. [NTN 的主要問題](#三NTN的主要問題)
+4. [延遲補償（Delay Compensation）](#四延遲補償Delay-Compensation)
+5. [LEO 衛星特性與基本參數](#五LEO-衛星特性與基本參數)
+6. [System information blocks Type 19 (SIB 19)](#六System-information-blocks-Type-19-SIB-19)
+7. [UE 的 NTN 接取流程](#七UE-的-NTN-接取流程) 
 
 ---
 
