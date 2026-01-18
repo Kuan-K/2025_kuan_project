@@ -20,7 +20,7 @@
 
 ---
 
-## 1.  摘要
+## 1.摘要
   NTN技術就是整合衛星與5G架構，藉由衛星來連接，擴大服務範圍，讓沒有辦法架設硬體的偏遠地區也能受到服務。
   ![NTN_Fig1](https://github.com/Kuan-K/2025_kuan_project/blob/main/%E7%AD%86%E8%A8%98%E5%9C%96%E7%89%87/3GPP%20NTN%20Architecture%20Overview.png)
 * User Equipments (UE) : 使用者設備，例如手機
@@ -37,7 +37,7 @@
    
   ![NTN_Fig2](https://github.com/user-attachments/assets/3c7a4f8f-ef87-4388-ba6c-236efd8d0433)
   
-## 2. 5G NR協定堆疊(Protocol Stack)與RACH
+## 2.5G NR協定堆疊(Protocol Stack)與RACH
 
   在3GPP NTN 中，無線介面沿用 5G NR Protocol Stack。
   
