@@ -11,12 +11,12 @@
 
 ## TOC
 1. [摘要](#摘要)
-2. [5G NR協定堆疊(Protocol Stack)與RACH](#2.-5G-NR協定堆疊Protocol-Stack與RACH)
+2. [5G NR協定堆疊(Protocol Stack)與RACH](#5G-NR協定堆疊Protocol-Stack與RACH)
 3. [NTN 的主要問題](#NTN的主要問題)
-4. 延遲補償（Delay Compensation）
-5. LEO 衛星特性與基本參數
-6. System information blocks Type 19 (SIB 19)
-7. UE 的 NTN 接取流程 
+4. [延遲補償（Delay Compensation）](#延遲補償Delay-Compensation)
+5. [LEO 衛星特性與基本參數](#LEO-衛星特性與基本參數)
+6. [System information blocks Type 19 (SIB 19)](#System-information-blocks-Type-19-SIB-19)
+7. [UE 的 NTN 接取流程](#UE-的-NTN-接取流程) 
 
 ---
 
@@ -104,7 +104,7 @@
   * 店員說：「好，阿寬，這是你的客戶編號 123，麻煩到旁邊等叫號。」(Msg4)
   
 
-## 3. NTN 的主要問題
+## 3. NTN的主要問題
 
 ### PHY
   1. 定時提前 (Timing Adavance, TA)：
