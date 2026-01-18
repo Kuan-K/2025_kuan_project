@@ -7,9 +7,9 @@
 
 
 ## TOC
-1. General
-2. Channel Modeling
-3. RFsimulator重要函式與模擬邏輯
+1. [General](General)
+2. [Channel Modeling](ChannelModeling)
+3. [RFsimulator重要函式與模擬邏輯](RFsimulator重要函式與模擬邏輯)
 
 ## General
   The RF simulator allows you to test OAI without a physical RF board. It replaces the real RF board driver and can simulate a simple channel.
@@ -265,4 +265,121 @@ if (channelDesc->Doppler_phase_inc != 0.0) {
 * server link是直接算出delay 跟 doopler直接做旋轉或偏移
 * feeder link則是用三點估計法計算偏移量，再用nr_update_sib19 去重新更新sib19，因此REGEN 因為沒有進入迴圈 REGEN更新到的有關feeder link sib19中相關參數如(drift與delay)會為0。
     
+### [nr_ntn_l1.c](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/3aad8d774805a03a974f06437584d5f94b68678e/openair1/PHY/NR_UE_TRANSPORT/nr_ntn_l1.c)
 
+#### apply_ntn_config
+```
+ *duration_rx_to_tx = NR_UE_CAPABILITY_SLOT_RX_TO_TX + (koffset << mu);
+```
+NR_UE_CAPABILITY_SLOT_RX_TO_TX是地面網路的時間延遲，再加上koffset
+
+```
+if (koffset > *ntn_koffset)
+    *timing_advance += get_samples_slot_duration(fp, slot_rx, (koffset - *ntn_koffset) << mu);
+else if (koffset < *ntn_koffset)
+    *timing_advance -= get_samples_slot_duration(fp, slot_rx, (*ntn_koffset - koffset) << mu);
+```
+* *ntn_koffset:目前運作中的 
+* koffset:是新設定
+根據 koffset的大小及前後差異更新到TA中
+
+#### apply_ntn_timing_advance_and_doppler
+
+```
+ const int abs_subframe_epoch = ntn_config_params->epoch_subframe
+                               + ntn_config_params->epoch_sfn * 10
+                               + ntn_config_params->epoch_hfn * 10240; 總毫秒數 = (HFN * 1024 + SFN) * 10ms + subframe
+ const int ms_since_epoch = abs_subframe_tx < 0 ? 0 : abs_subframe_tx - abs_subframe_epoch;
+
+ if (omega) {
+    const double cos_wt = cos(omega * ms_since_epoch);
+    const double sin_wt = sin(omega * ms_since_epoch);
+
+    const position_t pos_sat_90 = ntn_config_params->pos_sat_90;
+    pos_sat = (position_t){pos_sat_0.X * cos_wt + pos_sat_90.X * sin_wt,
+                           pos_sat_0.Y * cos_wt + pos_sat_90.Y * sin_wt,
+                           pos_sat_0.Z * cos_wt + pos_sat_90.Z * sin_wt};
+
+    const position_t vel_sat_90 = ntn_config_params->vel_sat_90;
+    vel_sat = (position_t){vel_sat_0.X * cos_wt + vel_sat_90.X * sin_wt,
+                           vel_sat_0.Y * cos_wt + vel_sat_90.Y * sin_wt,
+                           vel_sat_0.Z * cos_wt + vel_sat_90.Z * sin_wt};
+  } else {
+    pos_sat = (position_t){pos_sat_0.X + vel_sat_0.X * ms_since_epoch / 1000,
+                           pos_sat_0.Y + vel_sat_0.Y * ms_since_epoch / 1000,
+                           pos_sat_0.Z + vel_sat_0.Z * ms_since_epoch / 1000};
+    vel_sat = vel_sat_0;
+  }
+```
+* (HFN, Hyper Frame Number) 可以想像成時針 
+* (SFN, System Frame Number) 可以想像成分針 (每1024一圈)
+
+如果沒有omega時就使用簡單的計算(線性的)，但如果有omega 使用座標精確的計算位置。
+
+<table>
+  <tr>
+    <td>變數名稱</td>
+    <td>說明</td>
+    <td>計算方式</td>
+  </tr>
+  <tr>
+    <td>position_t dir_sat_ue</td>
+    <td>算出方向</td>
+    <td>$pos_ue.X - pos_sat.X, pos_ue.Y - pos_sat.Y, pos_ue.Z - pos_sat.Z$</td>
+  </tr>
+  <tr>
+    <td>distance</td>
+    <td>計算衛星與UE的距離</td>
+    <td>$sqrt(dir_sat_ue.X * dir_sat_ue.X + dir_sat_ue.Y * dir_sat_ue.Y + dir_sat_ue.Z * dir_sat_ue.Z)$</td>
+  </tr>
+  <tr>
+    <td>vel_sat_ue</td>
+    <td>算出相對速度</td>
+    <td>$(vel_sat.X * dir_sat_ue.X + vel_sat.Y * dir_sat_ue.Y + vel_sat.Z * dir_sat_ue.Z) / distance$</td>
+  </tr>
+  <tr>
+    <td>Doppler_shift</td>
+    <td>計算多普勒頻移</td>
+    <td>freq_new = freq_old * (v / (c - v))</td>
+  </tr>
+  <tr>
+    <td>N_UE_TA_adj</td>
+    <td>計算TA</td>
+    <td>2000 * distance / SPEED_OF_LIGHT;</td>
+  </tr>
+  <tr>
+    <td>UE->timing_advance_ntn</td>
+    <td>計算最後到底要提前多少</td>
+    <td>(N_UE_TA_adj + N_common_ta_adj + N_common_ta_drift * ms_since_epoch / 1e6
+                              + N_common_ta_drift_variant * ((int64_t)ms_since_epoch * ms_since_epoch) / 1e9)
+                             * fp->samples_per_subframe; #初始位置+速度*t+加速度*t^2
+  </td>
+  </tr>
+</table>
+
+#### fix_ntn_epoch_hfn
+
+這個函式就是用來修正 Epoch 到底屬於哪一個 HFN。因為SIB19只會告訴我們SFN
+
+```
+const int epoch_frame = UE->nrUE_config.ntn_config.epoch_sfn; # Epoch 的 SFN
+const int diff1 = (frame - epoch_frame + 1024) % 1024;  
+const int diff2 = (epoch_frame - frame + 1024) % 1024; 
+```
+* diff1：假設 Epoch 在過去，離現在隔了幾個 Frame
+* diff2：假設 Epoch 在未來，還有幾個 Frame 才到
+
+```
+if (diff1 < diff2) { // epoch_frame in the past
+    if (epoch_frame <= frame)
+      *epoch_hfn = hfn; # 正常狀況
+    else
+      *epoch_hfn = hfn - 1; # 跨越了邊界
+  } else { // epoch_frame in the future
+    if (epoch_frame >= frame)
+      *epoch_hfn = hfn; # 正常狀況
+    else
+      *epoch_hfn = hfn + 1; # 跨越了邊界
+  }
+```
+判斷是過去還是未來並修正HNF
