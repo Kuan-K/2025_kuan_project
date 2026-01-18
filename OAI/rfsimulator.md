@@ -7,9 +7,9 @@
 
 
 ## TOC
-1. [General](General)
-2. [Channel Modeling](ChannelModeling)
-3. [RFsimulator重要函式與模擬邏輯](RFsimulator重要函式與模擬邏輯)
+1. [General](#General)
+2. [Channel Modeling](#Channel-Modeling)
+3. [RFsimulator重要函式與模擬邏輯](#RFsimulator重要函式與模擬邏輯)
 
 ## General
   The RF simulator allows you to test OAI without a physical RF board. It replaces the real RF board driver and can simulate a simple channel.
