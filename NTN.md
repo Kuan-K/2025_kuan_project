@@ -368,7 +368,7 @@ PositionVelocity-r17 ::= SEQUENCE {
 
 <img width="695" height="228" alt="image" src="https://github.com/user-attachments/assets/54719e49-08ad-455c-8ed2-1544b1ab730a" />
 
-包含 UlSyncValidityDuration、cellSpecificKoffset 與 TA info、ephemerisInfo都可以對照
+包含 UlSyncValidityDuration、cellSpecificKoffset 與 TA info、ephemerisInfo都可以對照，做修改調整。
 
 ## 七.UE 的 NTN 接取流程
 ### flowchart
