@@ -101,7 +101,8 @@ Quoted from ([model lists](https://gitlab.eurecom.fr/oai/openairinterface5g/-/bl
   在 OAI 中扮演的是「虛擬射頻卡（Virtual RF Device）」的角色，原本 OAI 訊號應該送往 USRP 等硬體設備，但 rfsimulator 攔截了這些 IQ Samples（同相正交訊號），透過網路（TCP Sockets）在基站（gNB）與終端（UE）之間傳遞，並在過程中「加料」來模擬通道效應。在標準的 rfsimulator 中，它通常不區分這兩段。它將「基站 $\rightarrow$ 衛星 $\rightarrow$ 終端」視為一個整體的 End-to-End Channel。
 
 ### 簡易架構圖
-<img width="691" height="651" alt="flowchart about rfsim_c" src="https://github.com/user-attachments/assets/716512b4-c813-45f3-9aa4-6a855b14355a" />
+
+<img width="711" height="651" alt="flowchart about rfsim_c" src="https://github.com/user-attachments/assets/84140187-7dbb-45d3-a41e-bb6c70742a37" />
 
 圖中紅框內為rfsimulator.cpp的程式架構圖，UE或gNB會用rfsimulator_write寫入IQ樣本，rfsimulator_state會有靜態的初值，接著rfsim可以用rxAddInput進入 apply chaneelmod.c 接著可以會根據通道模型更新動態的IQ樣本如delay、drift等，另一端即可用rfsimulator_read讀取資料。
 
