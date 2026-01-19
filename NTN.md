@@ -216,7 +216,7 @@ LEO軌道特性
   * 在S-band(2Ghz)最大多普勒頻移大約為± 50.0 kHz
   * 基本計算公式 $$f_d = \frac{v_r}{c} \cdot f_c$$
 * 路徑耗損
-  * 自由空間損耗 (FSPL)隨距離，在衛星高度600km使用S-band下大約為174 db 代表訊號強度會衰減 $10^{17.4}$ 倍
+  * 自由空間損耗 (Free-Space Path Loss,FSPL)隨距離，在衛星高度600km使用S-band下大約為174 db 代表訊號強度會衰減 $10^{17.4}$ 倍
   * 基本計算公式 $$Loss = 20\log_{10}(d) + 20\log_{10}(f) + 20\log_{10}\left(\frac{4\pi}{c}\right)$$
 
 [note] S-band 根據IEEE定義，S-band指的是頻率範圍在 2 GHz – 4 GHz，是目前 3GPP 針對非地面網路 (NTN) 專門劃分的頻段。常使用s-band是因為它具備較強的抗雨衰能力，且其波長適合整合進普通智慧型手機的天線設計中。
@@ -227,7 +227,7 @@ LEO軌道特性
 ## 六.System information blocks Type 19 (SIB 19)
 
 ### 摘要
-  SIB19是3GPP在TS 38.331 R17中新加入的，專為NTN設計的SIB，裡面包含了ntn的資訊如星曆資料、共同定時偏移等，SIB19對於NTN的接入是必要的如果沒有，UE將會無法接入，SIB19裡面包含幾個重要參數ntn-Config、t-Service等，在r18又針對LEO高速移動的特性，加入numberOfMsg4HARQ-ACK-Repetitions、t-ServiceStart等參數。
+  SIB19是3GPP在[TS 38.331 R17](https://www.etsi.org/deliver/etsi_ts/138300_138399/138331/18.05.01_60/ts_138331v180501p.pdf)中新加入的，專為NTN設計的SIB，裡面包含了ntn的資訊如星曆資料、共同定時偏移等，SIB19對於NTN的接入是必要的如果沒有，UE將會無法接入，SIB19裡面包含幾個重要參數ntn-Config、t-Service等，在r18又針對LEO高速移動的特性，加入numberOfMsg4HARQ-ACK-Repetitions、t-ServiceStart等參數。
  ### 接受到後的動作
    當ue接收到sib19時，會啟動或是重啟T430 timer，數值應設為該serving cell的ntn-UlSyncValidityDuration，計時應從該cell的 epochTime（參考時間點）開始計算。
    
@@ -361,6 +361,15 @@ PositionVelocity-r17 ::= SEQUENCE {
   velocityVY-r17 VelocityStateVector-r17, # y軸速率
   velocityVZ-r17 VelocityStateVector-r17  # z軸速率
 ```
+
+### oai程式碼對照SIB19關鍵參數
+
+在oai的NTN_LEO的gNB conf檔中
+
+<img width="695" height="228" alt="image" src="https://github.com/user-attachments/assets/54719e49-08ad-455c-8ed2-1544b1ab730a" />
+
+包含 UlSyncValidityDuration、cellSpecificKoffset 與 TA info、ephemerisInfo都可以對照
+
 ## 七.UE 的 NTN 接取流程
 ### flowchart
 <img width="649" height="771" alt="flowchart about UE(RACH)" src="https://github.com/user-attachments/assets/8651b26c-de13-4d8b-bcca-c8c0f463f2a7" />
