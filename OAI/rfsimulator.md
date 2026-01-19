@@ -156,6 +156,14 @@ Quoted from ([model lists](https://gitlab.eurecom.fr/oai/openairinterface5g/-/bl
     rfsimulator_read的關鍵有一個rfsimulator_read_beam的func他主要為了模擬天線的陣列，就是把資料讀進來的過程
 
 ### [apply_channelmod.c](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/radio/rfsimulator/apply_channelmod.c?ref_type=heads)
+  #### 流程圖
+  <img width="731" height="971" alt="flowchart about apply_channelmod" src="https://github.com/user-attachments/assets/dca4876f-9986-4e15-b722-536ee6d62851" />
+  
+  上圖為apply_channelmod.c的流程圖
+  
+  首先先判斷 衛星高度是否>0(是不是NTN)，並且有沒有要補償，之後讀取並設定基本數值(如地球半徑、衛星的位置及速度)，接著會判斷是不是TRANS mode 如果是則會增加 sat_gNB的參數，如果不是則只有ue_sat，接著計算延遲 distance/c與doppler shift (v/c)*fc，每10ms更新一次sib19的資料，最後進入rxAddInput， 將 Doppler、Path Loss 和 Noise 加在訊號上
+
+  詳細程式碼與對照在下方
   #### update_channel_model
     在每一段數據處理前執行，計算當前時間點下的衛星狀態
   ##### 初始化與計算動態座標
@@ -244,7 +252,7 @@ Quoted from ([model lists](https://gitlab.eurecom.fr/oai/openairinterface5g/-/bl
             .velocity.Z = vel_sat_z / 0.06,
   ```
   
-  * 每 100ms 觸發一次更新sib19的資訊
+  * 每 10ms 觸發一次更新sib19的資訊
   * 除1.3與0.06是為了符合SIB19定義的整數單位
   #### rxAddInput
   訊號效應加工
