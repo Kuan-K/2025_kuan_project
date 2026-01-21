@@ -58,7 +58,7 @@ Modify the following two parts
 GNB_IPV4_ADDRESS_FOR_NG_AMF/NGU = OAI CN5G bridge oai-cn5g
 
  amf_ip_address = amf_ip_addres
-## start the gNB with (NTN-LEO example 官方)
+## start the gNB with (NTN example 官方)
 ```
 cd ~/openairinterface5g/cmake_targets
 
@@ -118,6 +118,7 @@ DN to UE (DL,FWR)
 
 <img width="1451" height="217" alt="image" src="https://github.com/user-attachments/assets/08f53427-894b-4afd-80f1-a835b64c5988" />
 
+#### TRANS Mode
 #### ping test
 
 UE to DN (UL,RTN)
@@ -136,6 +137,27 @@ UE to DN (UL,RTN)
 DN to UE (DL,FWR)
 
 <img width="790" height="359" alt="image" src="https://github.com/user-attachments/assets/7ec2688c-eece-4135-a1e9-8509eda65ef4" />
+
+#### REGEN Mode
+#### ping test
+
+UE to DN (UL,RTN)
+
+<img width="760" height="290" alt="image" src="https://github.com/user-attachments/assets/dbe0b7c0-2d9c-4199-9294-8636355c44d2" />
+
+DN to UE (DL,FWR)
+
+<img width="680" height="292" alt="image" src="https://github.com/user-attachments/assets/59592a4a-7e3d-4f59-a6e4-506a12d59a73" />
+
+#### iperf3
+UE to DN (UL,RTN)
+
+<img width="781" height="385" alt="image" src="https://github.com/user-attachments/assets/98d1b4ec-c3b8-4dd4-8b35-b2f2f1a23a36" />
+
+DN to UE (DL,FWR)
+
+<img width="779" height="358" alt="image" src="https://github.com/user-attachments/assets/ae97235d-e868-4a70-ae59-e8feb71c4172" />
+
 
 ### 在核網新增新的UE資訊 (以更改 IMSI = '0010100007487' 其他key opc等都不變為例)
 1. 進入MySQL 容器
