@@ -90,12 +90,6 @@ In the configuration file, each entry in a model list uses a set of parameters t
 
 Quoted from ([model lists](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair1/SIMULATION/TOOLS/DOC/channel_simulation.md?plain=0#model-lists))
 
-## 預計要看的檔案
-
-* [openair1/SIMULATION/TOOLS/sim.h](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair1/SIMULATION/TOOLS/sim.h)	定義了最重要的數據結構 channel_desc_t，包含了通道的所有參數（延遲、增益、天線數等）。
-* [openair1/SIMULATION/TOOLS/DOC/channel_simulation.md](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair1/SIMULATION/TOOLS/DOC/channel_simulation.md)	官方的技術說明文件，詳細描述了配置參數與模型原理。
-
-
 ## RFsimulator重要函式與模擬邏輯
 ### 摘要
   在 OAI 中扮演的是「虛擬射頻卡（Virtual RF Device）」的角色，原本 OAI 訊號應該送往 USRP 等硬體設備，但 rfsimulator 攔截了這些 IQ Samples（同相正交訊號），透過網路（TCP Sockets）在基站（gNB）與終端（UE）之間傳遞，並在過程中「加料」來模擬通道效應。在標準的 rfsimulator 中，它通常不區分這兩段。它將「基站 $\rightarrow$ 衛星 $\rightarrow$ 終端」視為一個整體的 End-to-End Channel。
@@ -107,7 +101,21 @@ Quoted from ([model lists](https://gitlab.eurecom.fr/oai/openairinterface5g/-/bl
 圖中紅框內為rfsimulator.cpp的程式架構圖，UE或gNB會用rfsimulator_write寫入IQ樣本，rfsimulator_state會有靜態的初值，接著rfsim可以用rxAddInput進入 apply chaneelmod.c 接著可以會根據通道模型更新動態的IQ樣本如delay、drift等，另一端即可用rfsimulator_read讀取資料。
 
 ### [rfsimulator.cpp](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/radio/rfsimulator/simulator.cpp?ref_type=heads)
-  #### device_init
+
+### 流程圖
+<img width="549" height="751" alt="flowchart about RFsimulator" src="https://github.com/user-attachments/assets/a2bdfc14-cadc-434f-934e-27b2897a9d0d" />
+
+假設UE 想要向gNB取資料
+
+啟動後會先進入device_init後確認基本參數
+
+而gNB透過rfsimulator write() 呼叫rfsimulator write_beams 與rfsimulator write_interval
+
+寫入IQ資料 TCP socket
+
+之後UE透過rfsimulator read() 呼叫rfsimulator read_beams 使用update_channel_model 更新通道資料加上delay讓read去讀buffer過去的資料 接著呼叫rfsimulator read_interval 呼叫rxAddinput對資料進行加工 加上 doppler shift
+
+#### device_init
   讀取參數、時間/延遲設定、函數指針掛載、對外接口設定
 
   ##### 初始化(讀取參數)
@@ -155,6 +163,128 @@ Quoted from ([model lists](https://gitlab.eurecom.fr/oai/openairinterface5g/-/bl
 * 當 OAI 想要「送出訊號」到天線時，它其實是呼叫了 rfsimulator_write（把資料寫入 Socket 傳給對方）。
 * 當 OAI 想要「接收訊號」時，它呼叫 rfsimulator_read（從 Socket 讀取對方的資料並套用通道模型）。
     rfsimulator_read的關鍵有一個rfsimulator_read_beam的func他主要為了模擬天線的陣列，就是把資料讀進來的過程
+
+#### rfsimulator_read
+呼叫 rfsimulator_read_beams
+
+而rfsimulator_read_beams的功能大致上可分為5步
+##### rfsimulator_read_beams
+1.檢查並等待
+
+目的是為了不讓接收端讀取得比發送端還快，如果接收比發送快會呼叫flushInput這個函式強行等待
+```
+# 關鍵程式
+ bool have_to_wait;
+  do {
+    have_to_wait = true;
+    flushInput(t, 3, true);
+    if (b->lastReceivedTS)
+      have_to_wait = false;
+  } while (have_to_wait);
+```
+2.更新通道資料
+
+會呼叫update_channel_model 來更狀態在apply_channelmod裡有詳細解釋
+
+```
+# 關鍵程式
+  struct timespec start_time;
+  int ret = clock_gettime(CLOCK_REALTIME, &start_time);
+  AssertFatal(ret == 0, "clock_gettime() failed: errno %d, %s\n", errno, strerror(errno));
+
+  for (int sock = 0; sock < MAX_FD_RFSIMU; sock++) {
+    buffer_t *ptr = &t->buf[sock];
+
+    if (ptr->conn_sock != -1 && ptr->channel_model != NULL) {
+      update_channel_model(ptr->channel_model, t->nextRxTstamp);
+    }
+  }
+```
+3.處理 Beamhopping
+
+一個 Slot 內，衛星的波束可能會切換，他會呼叫get_beams(...) 問系統：「從現在開始的這段時間，是用哪個波束？」
+
+```
+# 關鍵程式
+openair0_timestamp timestamp = t->nextRxTstamp;
+  int nsamps_to_process = nsamps;
+  while (nsamps_to_process > 0) {
+    uint32_t nsamps_beam_map;
+    std::vector<int> rx_beams = get_beams(&t->beam_ctrl->tx, timestamp, nsamps_to_process, &nsamps_beam_map);
+```
+4 呼叫read_internal 加工
+
+確定好這一段時間是用哪個 Beam 之後，它呼叫 rfsimulator_read_internal
+
+rfsimulator_read_internal會去bufffer 撈資料，套用通道模型（加上 Delay 和 Doppler）
+```
+# 關鍵程式
+rfsimulator_read_internal(t, samples_beam, timestamp, nsamps_beam_map, nbAnt, rx_beams[beam], beam == 0);
+```
+5 增加整體時間清除記憶體
+
+整個模擬器的時間是在 rfsimulator_read裡增加
+
+將太舊的buffer資料刪掉(舊到連加上延遲都傳不到現在的)
+```
+# 關鍵程式
+t->nextRxTstamp += nsamps;
+clear_old_packets(ptr->received_packets, timestamp_to_free);
+```
+##### rfsimulator_read_internal
+
+模擬delay，根據延遲去bufffer 撈過去的資料
+
+呼叫rxAddInput 拿到算好的Doppler 參數，對訊號做 複數旋轉 (Phase Rotation)
+
+#### rfsimulator_write
+呼叫 rfsimulator_write_beams
+
+##### rfsimulator_write_beams
+
+把一個 Slot 的大筆資料，切成數個小段。
+
+1.設定初始的 timestamp，接收端計算延遲 (Delay) 的基準
+```
+timestamp -= device->openair0_cfg->command_line_sample_advance;
+int nsamps_initial = nsamps; // 記住總共有多少樣本要送
+```
+
+2.查詢並切分
+
+使用 get_beams: 詢問系統：「從現在開始，目前的波束會持續多久？」它會回傳一個 nsamps_beam_map(持續多長)
+
+呼叫write_internal發送這一段資料
+
+將timestamp 時間往後推，準備處理下一段
+```
+  while (nsamps > 0) {
+    uint32_t nsamps_beam_map;
+    std::vector<int> beams = get_beams(&t->beam_ctrl->tx, timestamp, nsamps, &nsamps_beam_map);
+    rfsimulator_write_internal(t, timestamp, samples_ptr, nsamps_beam_map, nbAnt, beams, flags);
+    for (int beam = 0; beam < num_beams; beam++) {
+      for (int aatx = 0; aatx < nbAnt; aatx++) {
+        char *ptr = (char *)samples_ptr[beam][aatx];
+        samples_ptr[beam][aatx] = (void *)(ptr + nsamps_beam_map * sizeof(sample_t));
+      }
+    }
+    timestamp += nsamps_beam_map;
+    nsamps -= nsamps_beam_map;
+  }
+```
+##### rfsimulator_write_internal
+負責把總管交給它的一小段資料，貼上標籤丟進網路線。
+
+先送 Header (標籤)，再送 Samples (內容)。
+```
+fullwrite(b->conn_sock, &header, sizeof(header), t);
+
+for (int a = 0; a < nbAnt; a++) {
+  sample_t *in = (sample_t *)samplesVoid[indices[beam]][a];
+  fullwrite(b->conn_sock, (void *)in, sampleToByte(nsamps, 1), t);
+}
+```
+
 
 ### [apply_channelmod.c](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/radio/rfsimulator/apply_channelmod.c?ref_type=heads)
   #### 流程圖
