@@ -116,6 +116,10 @@ DN to UE (DL,FWR)
 
 #### amf log
 
+```
+docker logs oai-amf -f
+```
+
 <img width="1451" height="217" alt="image" src="https://github.com/user-attachments/assets/08f53427-894b-4afd-80f1-a835b64c5988" />
 
 #### TRANS Mode
