@@ -119,44 +119,90 @@ DN to UE (DL,FWR)
 <img width="1451" height="217" alt="image" src="https://github.com/user-attachments/assets/08f53427-894b-4afd-80f1-a835b64c5988" />
 
 #### TRANS Mode
+
+#### delay 
+gNB log
+
+<img width="1076" height="812" alt="image" src="https://github.com/user-attachments/assets/41349f75-369e-4170-947b-575d9a9fa189" />
+
+UE log
+
+<img width="1111" height="923" alt="image" src="https://github.com/user-attachments/assets/d4eab5bf-112d-4f8d-a06b-ac1d28858112" />
+
 #### ping test
 
+當 Uplink+Downlink > koffset 的時候會連不上
+
+RTT $\approx$  koffset + 電腦系統的延遲與排成(15~20ms)
+
 UE to DN (UL,RTN)
 
-<img width="765" height="291" alt="image" src="https://github.com/user-attachments/assets/c67d04c2-c6e9-451e-b113-594c491e5305" />
+<img width="615" height="275" alt="image" src="https://github.com/user-attachments/assets/fbf16dbe-154a-426b-b6df-7c2464a50087" />
 
 DN to UE (DL,FWR)
 
-<img width="642" height="288" alt="image" src="https://github.com/user-attachments/assets/dc090367-cb13-4d49-8b77-90c22152f790" />
+<img width="638" height="275" alt="image" src="https://github.com/user-attachments/assets/baa39b0b-3e5f-49e5-a366-85ee679cc051" />
 
 #### iperf3
+
+由於 oai 預設 UE 與 gNB 是全向性理想的(代表衛星不管在哪裡 ，訊號都不會因為角度而摔落)，也沒有加入path loss 預設為0
+
+於是我自己在程式中加入 [FSPL](https://github.com/Kuan-K/2025_kuan_project/blob/main/NTN.md#%E4%BA%94leo-%E8%A1%9B%E6%98%9F%E7%89%B9%E6%80%A7%E8%88%87%E5%9F%BA%E6%9C%AC%E5%8F%83%E6%95%B8)（Free-Space Path Loss)
+
+但由於 oai 並沒有實作天線增益所以如果只加入FSPL pathloss會衰減100db以上導致UE根本連不上
+
+所以我將FPSL算出來的結果除以5 重點觀察 pathloss的變化
+
+<img width="825" height="67" alt="image" src="https://github.com/user-attachments/assets/d9bb0760-b6ed-4a9c-966a-fbb5d895c3e2" />
+
+但FPSL的變化量每秒之間很小，所以throughput觀察不出太大的差異
+
 UE to DN (UL,RTN)
 
-<img width="792" height="379" alt="image" src="https://github.com/user-attachments/assets/250a8a77-4cfb-4a8d-b107-2d3b5a6ae0f8" />
+<img width="693" height="331" alt="image" src="https://github.com/user-attachments/assets/f7f8ff47-28e5-4af7-8d52-7aa237ff53fd" />
 
 DN to UE (DL,FWR)
 
-<img width="790" height="359" alt="image" src="https://github.com/user-attachments/assets/7ec2688c-eece-4135-a1e9-8509eda65ef4" />
+<img width="671" height="340" alt="image" src="https://github.com/user-attachments/assets/e4bcce96-43c8-4ffb-9364-ce97cb957d83" />
 
 #### REGEN Mode
+
+#### delay 
+
+gNB log
+
+<img width="1101" height="891" alt="image" src="https://github.com/user-attachments/assets/223dda25-7917-4df4-96a5-99a8c4d15739" />
+
+UE log
+
+<img width="1104" height="851" alt="image" src="https://github.com/user-attachments/assets/63e54aec-716f-4a1d-91ac-68e7ba607675" />
+
 #### ping test
+
+當 koffset = 20 ms
 
 UE to DN (UL,RTN)
 
-<img width="760" height="290" alt="image" src="https://github.com/user-attachments/assets/dbe0b7c0-2d9c-4199-9294-8636355c44d2" />
+<img width="612" height="272" alt="image" src="https://github.com/user-attachments/assets/981082a9-cefa-4cc8-baf2-7de587b9fd3a" />
+
 
 DN to UE (DL,FWR)
 
-<img width="680" height="292" alt="image" src="https://github.com/user-attachments/assets/59592a4a-7e3d-4f59-a6e4-506a12d59a73" />
+<img width="639" height="269" alt="螢幕擷取畫面 2026-03-02 180258" src="https://github.com/user-attachments/assets/64cef2b9-2dfa-433d-a224-4b1223fe879a" />
+
+當koffset = 30 ms
+
+<img width="641" height="562" alt="image" src="https://github.com/user-attachments/assets/7eb69598-ac17-4331-933f-be9a5ec4babd" />
+
 
 #### iperf3
 UE to DN (UL,RTN)
 
-<img width="781" height="385" alt="image" src="https://github.com/user-attachments/assets/98d1b4ec-c3b8-4dd4-8b35-b2f2f1a23a36" />
+<img width="700" height="359" alt="image" src="https://github.com/user-attachments/assets/d07a1d48-5e23-473b-bfee-0561190dc1aa" />
 
 DN to UE (DL,FWR)
 
-<img width="779" height="358" alt="image" src="https://github.com/user-attachments/assets/ae97235d-e868-4a70-ae59-e8feb71c4172" />
+<img width="677" height="343" alt="image" src="https://github.com/user-attachments/assets/8c62cc27-962c-44ab-b0f1-45cb927c665f" />
 
 
 ### 在核網新增新的UE資訊 (以更改 IMSI = '0010100007487' 其他key opc等都不變為例)
