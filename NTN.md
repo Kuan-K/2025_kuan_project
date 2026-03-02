@@ -370,6 +370,17 @@ PositionVelocity-r17 ::= SEQUENCE {
 
 包含 UlSyncValidityDuration、cellSpecificKoffset 與 TA info、ephemerisInfo都可以對照，做修改調整。
 
+### TA vs koffset
+
+TA 在 PHY 層實作，是因為衛星距離太長，所以提前做物理上的補償，讓訊號準時在到 gNB 
+
+koffset 在MAC/RLC 也是因為衛星距離太長，所以告訴gNB訊號會較晚才發送到，讓gNB等待而不直接判定為沒收到
+
+兩個雖然都是類似的東西但在不同層執行 以現實中例子來講
+
+TA就像司機到你家需要20分鐘就會提前20分鐘出發確保準時，而koffset像是行事曆如果你知道這是國際的包裹你就會預設，他可能會需要好幾天才會送到，不會再一天沒收到就打電話給客服說沒收到。
+
+
 ## 七.UE 的 NTN 接取流程
 ### flowchart
 <img width="649" height="771" alt="flowchart about UE(RACH)" src="https://github.com/user-attachments/assets/8651b26c-de13-4d8b-bcca-c8c0f463f2a7" />
