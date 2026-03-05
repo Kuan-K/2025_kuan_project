@@ -7,6 +7,8 @@
 # TOC
 1. 摘要
 2. AKA 回應與細節
+3. Flowchart
+4. MSC
 
 ---
 
@@ -44,8 +46,17 @@ AKA 總共有6步
 
 6. core 對答案 並將金鑰 傳給gNB
 
-* SUCI(Subscription Concealed Identifier) 將ISIM key 加密後的結果
+* SUPI(Subscription Permanent Identifier) 身分代碼
+* SUCI(Subscription Concealed Identifier) 將SUPI 加密後的結果
 * RAND 隨機數 (題目)
 * AUTN (Authentication Token) 用來證明自己是真的基地台 (浮水印)
 * HXRES* 預期回應值(謎底)
 * K<sub>SEAF</sub>加密金鑰
+
+## Flowchart
+
+<img width="522" height="1042" alt="connection_flowchart" src="https://github.com/user-attachments/assets/e6623491-77cd-4f58-8137-4a6d595220ed" />
+
+## MSC 
+
+<img width="829" height="1103" alt="connection_MSC" src="https://github.com/user-attachments/assets/9e4383c6-1e7e-4835-92bc-1e781d38c35b" />
