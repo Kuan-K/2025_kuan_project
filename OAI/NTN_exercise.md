@@ -153,6 +153,8 @@ DN to UE (DL,FWR)
 
 於是我自己在程式中加入 [FSPL](https://github.com/Kuan-K/2025_kuan_project/blob/main/NTN.md#%E4%BA%94leo-%E8%A1%9B%E6%98%9F%E7%89%B9%E6%80%A7%E8%88%87%E5%9F%BA%E6%9C%AC%E5%8F%83%E6%95%B8)（Free-Space Path Loss)
 
+可以從程式碼與官方文件預設的值看到
+
 但由於 oai 並沒有實作天線增益所以如果只加入FSPL pathloss會衰減100db以上導致UE根本連不上
 
 所以我將FPSL算出來的結果除以5 重點觀察 pathloss的變化
@@ -168,6 +170,11 @@ UE to DN (UL,RTN)
 DN to UE (DL,FWR)
 
 <img width="671" height="340" alt="image" src="https://github.com/user-attachments/assets/e4bcce96-43c8-4ffb-9364-ce97cb957d83" />
+
+
+#### figure
+
+<img width="1000" height="1200" alt="analysis_plot_20260309_145843" src="https://github.com/user-attachments/assets/6f9697e4-b4a8-4c8b-b0ef-79e0675436bf" />
 
 #### REGEN Mode
 
