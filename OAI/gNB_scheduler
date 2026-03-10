@@ -1,0 +1,12 @@
+# Study Note: gNB scheduler
+
+> Reference :
+> 
+>  https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler.c?ref_type=heads
+## TOC
+1. flowchart
+
+---
+
+### 1 flowchart
+
