@@ -1,4 +1,4 @@
-# OAI CN5G
+# installation : OAI CN5G
 
 > Reference :
 > - [NR_SA_Tutorial_OAI_CN5G](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/doc/NR_SA_Tutorial_OAI_CN5G.md?ref_type=heads)
