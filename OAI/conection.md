@@ -9,6 +9,7 @@
 2. AKA 回應與細節
 3. Flowchart
 4. MSC
+5. oai程式碼
 
 ---
 
@@ -53,10 +54,85 @@ AKA 總共有6步
 * HXRES* 預期回應值(謎底)
 * K<sub>SEAF</sub>加密金鑰
 
-## Flowchart
+## 3 Flowchart
 
 <img width="522" height="1042" alt="connection_flowchart" src="https://github.com/user-attachments/assets/e6623491-77cd-4f58-8137-4a6d595220ed" />
 
-## MSC 
+## 4 MSC 
 
 <img width="829" height="1103" alt="connection_MSC" src="https://github.com/user-attachments/assets/9e4383c6-1e7e-4835-92bc-1e781d38c35b" />
+
+
+## 5 oai程式碼
+
+### 摘要
+ OAI 透過 呼叫milenage_generate() 來進行AKA認證與生成金鑰的演算法，底層數學核心邏輯式AES-128
+
+ milenage 會接 根金鑰(K<sub>i</sub>)、電信商金鑰(OP<sub>c</sub>)、隨機碼(RAND) 並對資料加密及解密
+
+ | 函式名稱 | 功能 | 說明 |
+|:---:|:---:|:---:|
+| `f1` | `計算MAC-a與MAC-s` | UE用來驗證基地台送來的AUTN是否合法 |
+| `f2` | `計算RES(response)` | UE要回傳的答案證明自己是合法UE |
+| `f3` | `計算CK(Ciphering key)加密金鑰`  | 後續傳送的資料會以它加密 |
+| `f4` | `計算IK(integrity key)完整性金鑰` | 確保後資料完整性 |
+| `f5` | `計算AK(anonymity key)匿名金鑰` | 用來將SQN(序號)隱藏起來 |
+
+### [milenage.h](https://github.com/Kuan-K/2025_kuan_project/blob/main/OAI/oai_codes/milenage.h)
+
+#### [f1 函式](https://github.com/Kuan-K/2025_kuan_project/blob/72784d93f2b5b62efb7aadfbeab3d65ef148ef28/OAI/oai_codes/milenage.h#L63)
+
+input : opc,k,_rand,sqn,amf
+output : mac_a,mac_s
+
+
+加密過程先將RAND 與 opc 做 XOR 接著呼叫aeS-128使用金鑰K加密並存到tmp1
+
+公式： $TEMP = E_K(RAND \oplus OP_c)$
+```
+ for (i = 0; i < 16; i++)
+    tmp1[i] = _rand[i] ^ opc[i];
+
+  aes_128_encrypt_block(k, tmp1, tmp1);
+```
+
+接著將SQN與amf 接在一起並重複一次存在tmp2
+```
+  /* tmp2 = IN1 = SQN || AMF || SQN || AMF */
+  memcpy(tmp2, sqn, 6);
+  memcpy(tmp2 + 6, amf, 2);
+  memcpy(tmp2 + 8, tmp2, 8);
+```
+
+最後將tmp2與opc做XOR 並旋轉位移r1的長度(規範定義 $r_1 = 64$ bits，即 8 bytes)
+算出的結果在與tmp1做XOR，最後呼叫aes-128使用金鑰再次加密存到tmp1 並與opc做最後的XOR
+
+公式： $tmp3 = TEMP \oplus rot(IN1 \oplus OP_c, r_1) \oplus c_1$
+
+公式： $OUT = E_K(tmp3) \oplus OP_c$
+```
+  /* rotate (tmp2 XOR OP_C) by r1 (= 0x40 = 8 bytes) */
+  for (i = 0; i < 16; i++)
+    tmp3[(i + 8) % 16] = tmp2[i] ^ opc[i];
+
+  /* XOR with TEMP = E_K(RAND XOR OP_C) */
+  for (i = 0; i < 16; i++)
+    tmp3[i] ^= tmp1[i];
+
+  /* XOR with c1 (= ..00, i.e., NOP) */
+  /* f1 || f1* = E_K(tmp3) XOR OP_c */
+  aes_128_encrypt_block(k, tmp3, tmp1);
+
+  for (i = 0; i < 16; i++)
+    tmp1[i] ^= opc[i];
+```
+
+而tmp 前8位 為mac_a、後8位 為mac_s
+```
+  if (mac_a)
+    memcpy(mac_a, tmp1, 8); /* f1 */
+
+  if (mac_s)
+    memcpy(mac_s, tmp1 + 8, 8); /* f1* */
+```
+
