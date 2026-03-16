@@ -67,7 +67,7 @@ static inline void to_hex(char *in, uint8_t *out, int size) {
   }
 }
 
-uicc_t *init_uicc(char *sectionName) {
+uicc_t *init_uicc(char *sectionName) { //讀取測試金鑰與ISIM
   uicc_t *uicc=(uicc_t *)calloc(sizeof(uicc_t),1);
   paramdef_t uicc_params[] = UICC_PARAMS_DESC;
   // here we call usim simulation, but calling actual usim is quite simple
@@ -100,10 +100,10 @@ void uicc_milenage_generate(uint8_t *autn, uicc_t *uicc) {
   log_dump(SIM,autn,sizeof(autn), LOG_DUMP_CHAR,"milenage output autn:");
 }
 
-uicc_t * checkUicc(int Mod_id) {
-  AssertFatal(Mod_id < NB_UE_INST, "Mod_id must be less than NB_UE_INST. Mod_id:%d NB_UE_INST:%d", Mod_id,NB_UE_INST);
+uicc_t * checkUicc(int Mod_id) {  // 初始化UE
+  AssertFatal(Mod_id < NB_UE_INST, "Mod_id must be less than NB_UE_INST. Mod_id:%d NB_UE_INST:%d", Mod_id,NB_UE_INST); //確認傳入的mod_id沒有超過系統支援的最大UE數
   if(uiccArray==NULL){
-    uiccArray=(uicc_t **)calloc(1,sizeof(uicc_t*)*NB_UE_INST);
+    uiccArray=(uicc_t **)calloc(1,sizeof(uicc_t*)*NB_UE_INST); //配置記憶體
   }
   if (!uiccArray[Mod_id]) {
     char uiccName[64];
@@ -111,7 +111,7 @@ uicc_t * checkUicc(int Mod_id) {
     uiccArray[Mod_id]=(void*)init_uicc(uiccName);
     uicc_t *uicc = uiccArray[Mod_id];
     uicc->n_pdu_sessions = get_pdu_session_configs(uiccName, uicc->pdu_sessions, sizeof(uicc->pdu_sessions));
-    if (uicc->n_pdu_sessions > 0) {
+    if (uicc->n_pdu_sessions > 0) { // 判斷pdusession 是否大於0 大於0是新版 小於0是舊版
       LOG_I(SIM, "overriding potential %s.dnn/nssai_sst/nssai_sd from %s.pdu_sessions\n", uiccName, uiccName);
     } else if (uicc->n_pdu_sessions < 0) {
       // we could not load from "new" pdu_sessions list, so read from "legacy"
