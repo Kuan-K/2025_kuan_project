@@ -136,3 +136,26 @@ output : mac_a,mac_s
     memcpy(mac_s, tmp1 + 8, 8); /* f1* */
 ```
 
+
+#### [f2345 函式](https://github.com/Kuan-K/2025_kuan_project/blob/72784d93f2b5b62efb7aadfbeab3d65ef148ef28/OAI/oai_codes/milenage.h#L126)
+
+input: opc, k, rand
+output: res, ck, ik, ak, akstar
+
+先將RAND與opc做XOR，再使用AES_128與k做加密，並將結果存至 tmp2
+
+先算不用旋轉位移的res(f2)與AK(f5)
+
+將tmp2的結果與opc做XOR之後再XOR常數c2=1 並經過AES加密，與opc做XOR後把存入tmp3 前6bytes給ak 後面8bytes給res
+
+接著算CK(f3)，將tmp2循環左移4bytes並與opc做XOR的結果傳入tmp1 接著與常數c3=2 做XOR 並經過AES加密 最後與opc做XOR 得出CK
+
+繼續算IK(f4)，將tmp2循環左移8bytes並與opc做XOR的結果傳入tmp1 接著與常數c4=4 做XOR 並經過AES加密 最後與opc做XOR 得出IK
+
+最後算AKstar，將tmp2循環左移12bytes並與opc做XOR的結果傳入tmp1 接著與常數c5=8 做XOR 並經過AES加密 最後與opc做XOR 得出aKstar
+
+#### [milenage_generate()](https://github.com/Kuan-K/2025_kuan_project/blob/72784d93f2b5b62efb7aadfbeab3d65ef148ef28/OAI/oai_codes/milenage.h#L222)
+
+呼叫函式計算f1~f5
+
+將sqn與ak做XOR 並串接amf與mac_a讓AUTN變為完整的16bytes
