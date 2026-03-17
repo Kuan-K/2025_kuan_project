@@ -1,4 +1,4 @@
-# installation : OAI CN5G
+# installation : free5gc
 
 > Reference :
 > - [free5GC compose](https://github.com/calee0219/free5gc-docker-compose)
@@ -10,7 +10,7 @@
 
 請先安裝[docker](https://github.com/Kuan-K/2025_kuan_project/blob/main/OAI/oaicn5g%20built%20environment_.md#install-docker-engine-and-the-docker-compose-plugin)
 
-## pull socker image
+## pull docker image
 ```
 docker compose pull
 ```
