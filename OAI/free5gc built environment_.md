@@ -43,6 +43,39 @@ cd ~/gtp5g
 make
 sudo make install
 ```
+## [DKMS](https://github.com/free5gc/gtp5g?tab=readme-ov-file#dkms-support) (option) 強烈建議
+
+如果不做VM 每次重開機，都會把原本的東西更新掉導致不能跑
+
+因為目前的docker compose裡面認得的是0.9.5以下的版本，所以以0.9.5示範
+
+```
+
+sudo cp -r ~/gtp5g /usr/src/gtp5g-0.9.5
+
+# 如果需要降版本 請執行下面這邊(直接整段複製執行)
+sudo tee /usr/src/gtp5g-0.9.5/dkms.conf <<EOF
+PACKAGE_NAME="gtp5g"
+PACKAGE_VERSION="0.9.5"
+MAKE[0]="make CC=gcc-12"
+CLEAN="make clean"
+BUILT_MODULE_NAME[0]="gtp5g"
+DEST_MODULE_LOCATION[0]="/kernel/drivers/net"
+AUTOINSTALL="yes"
+EOF
+# -------------------------
+
+# 不需要降版本直接接著執行
+sudo dkms add -m gtp5g -v 0.9.5
+sudo dkms build -m gtp5g -v 0.9.5
+sudo dkms install -m gtp5g -v 0.9.5
+
+echo "gtp5g" | sudo tee -a /etc/modules # 讓模組開機自動啟用
+
+# 驗證 如果顯示version 0.9.5 就代表成功
+sudo modprobe gtp5g
+modinfo gtp5g | grep version
+```
 
 ## Run free5GC
 ```
