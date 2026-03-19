@@ -114,3 +114,15 @@ sudo ./ran_build/build/nr-softmodem -O ../ci-scripts/conf_files/gnb.sa.band254.u
 #UE
 sudo ./ran_build/build/nr-uesoftmodem -O ../targets/PROJECTS/GENERIC-NR-5GC/CONF/ue_free5gc.conf --band 254 -C 2488400000 --CO -873500000 -r 25 --numerology 0 --ssb 60 --rfsim --rfsimulator.prop_delay 20 --rfsimulator.options chanmod --time-sync-I 0.1 --ntn-initial-time-drift -46 --initial-fo 57340 --cont-fo-comp 2
 ```
+
+### NTN E2E
+
+#### ping
+
+直接ping外網
+```
+ping -I oaitun_ue1 8.8.8.8
+```
+UE $\rightarrow$ gNB $\rightarrow$ UPF $\rightarrow$ 網際網路。
+
+#### iperf3
