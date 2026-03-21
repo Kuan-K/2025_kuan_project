@@ -65,7 +65,14 @@ AKA 總共有6步
 
 ## 5 oai程式碼
 
-### 摘要
+### TN vs NTN
+
+在NTN與TN中gNB 的config 檔中程式碼沒有太大的修改，除了修改一些參數的值，最主要就是增加[SIB19與衛星的速度及位置的資訊](https://github.com/Kuan-K/2025_kuan_project/blob/main/NTN.md#oai%E7%A8%8B%E5%BC%8F%E7%A2%BC%E5%B0%8D%E7%85%A7sib19%E9%97%9C%E9%8D%B5%E5%8F%83%E6%95%B8)
+
+UE 的 [command](https://github.com/Kuan-K/2025_kuan_project/blob/main/OAI/NTN_exercise.md#start-the-nrue)也沒有 出現IFDEF的參數，所以AKA 認證TN 是一樣的
+
+
+### 程式摘要
  OAI 透過 呼叫milenage_generate() 來進行AKA認證與生成金鑰的演算法，底層數學核心邏輯式AES-128
 
  milenage 會接 根金鑰(K<sub>i</sub>)、電信商金鑰(OP<sub>c</sub>)、隨機碼(RAND) 並對資料加密及解密
