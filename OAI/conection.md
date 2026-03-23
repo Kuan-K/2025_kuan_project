@@ -81,7 +81,7 @@ UE 的 [command](https://github.com/Kuan-K/2025_kuan_project/blob/main/OAI/NTN_e
 |:---:|:---:|:---:|
 | `f1` | `計算MAC-a與MAC-s` | UE用來驗證基地台送來的AUTN是否合法 |
 | `f2` | `計算RES(response)` | UE要回傳的答案證明自己是合法UE |
-| `f3` | `計算CK(Ciphering key)加密金鑰`  | 後續傳送的資料會以它加密 |
+| `f3` | `計算CK(confidentiality key)加密金鑰`  | 後續傳送的資料會以它加密 |
 | `f4` | `計算IK(integrity key)完整性金鑰` | 確保後資料完整性 |
 | `f5` | `計算AK(anonymity key)匿名金鑰` | 用來將SQN(序號)隱藏起來 |
 
@@ -166,3 +166,52 @@ output: res, ck, ik, ak, akstar
 呼叫函式計算f1~f5
 
 將sqn與ak做XOR 並串接amf與mac_a讓AUTN變為完整的16bytes
+
+
+### [nr_nas_msg.c](https://github.com/Kuan-K/2025_kuan_project/blob/main/OAI/oai_codes/nr_nas_msg.c)
+
+當OAI的內部系統訊息 ITTI (Inter-Task Interface) 為 NAS_DOWNLINK_DATA_IND 時，會經由 swuich case 選擇後進入 case [NAS_DOWNLINK_DATA_IND]https://github.com/Kuan-K/2025_kuan_project/blob/d648d50d9135c5ea515d13ea475708860dfede11/OAI/oai_codes/nr_nas_msg.c#L2110
+
+當 msg_type = FGS_AUTHENTICATION_REQUEST 時 呼叫 handle_fgmm_authentication_request 去做身分認證及計算RES
+
+#### [handle_fgmm_authentication_request](https://github.com/Kuan-K/2025_kuan_project/blob/1cd927a7a3a23e6d94ef855b753969df1e832340/OAI/oai_codes/nr_nas_msg.c#L1071)
+
+```
+  fgmm_msg_header_t mm_header = {0};
+  if ((decoded = decode_5gmm_msg_header(&mm_header, buffer->buf + size, buffer->len - size)) < 0) {
+    LOG_E(NAS, "decode_5gmm_msg_header failure in NAS Authentication Request handling\n");
+    return;
+  }
+  size += decoded;
+```
+呼叫解碼函式把標頭拆開，如果不是一個標準的NAS函式則直接回傳error
+
+```
+ if ((decoded = decode_nas_key_set_identifier(&msg.ngKSI, 0, buffer->buf[decoded])) < 0) {
+    LOG_E(NAS, "decode_nas_key_set_identifier failure in NAS Authentication Request handling\n");
+    return;
+  }
+  size += decoded;
+```
+從封包中挖出ngKSI((NAS Key Set Identifier)) 對齊金鑰
+
+```
+ generateAuthenticationResp(nas, initialNasMsg, buffer->buf);
+```
+呼叫 generateAuthenticationResp
+#### [generateAuthenticationResp](https://github.com/Kuan-K/2025_kua
+```
+// get RAND for authentication request 收到的封包 buf 的第8個位元開始挖出16bytes的RAND
+  for (int index = 0; index < 16; index++) {
+    rand[index] = buf[8 + index];
+  }
+
+  uint8_t resTemp[16];
+  uint8_t ck[16], ik[16];
+  f2345(nas->uicc->key, rand, resTemp, ck, ik, ak, nas->uicc->opc); // 呼叫f2345 算出RES CK IK AK
+
+  transferRES(ck, ik, resTemp, rand, output, nas->uicc); //呼叫transferRES 計算RES*
+```
+拆解封包 取得RAND 呼叫f2345 與 transferRES 取得CK IK AK RES*
+
+transferRES
