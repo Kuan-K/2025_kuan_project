@@ -2109,16 +2109,16 @@ void *nas_nrue(void *args_p)
 
       case NAS_DOWNLINK_DATA_IND: {
         as_nas_info_t initialNasMsg = {0};
-        uint8_t *pdu_buffer = NAS_DOWNLINK_DATA_IND(msg_p).nasMsg.nas_data;
-        int pdu_length = NAS_DOWNLINK_DATA_IND(msg_p).nasMsg.length;
+        uint8_t *pdu_buffer = NAS_DOWNLINK_DATA_IND(msg_p).nasMsg.nas_data; // 取出資料
+        int pdu_length = NAS_DOWNLINK_DATA_IND(msg_p).nasMsg.length; 
         byte_array_t buffer = {.buf = pdu_buffer, .len = pdu_length};
-        security_state_t security_state = nas_security_rx_process(nas, buffer);
+        security_state_t security_state = nas_security_rx_process(nas, buffer); // 安全檢查
         if (security_state > NAS_SECURITY_INTEGRITY_PASSED) {
           LOG_E(NAS, "NAS integrity failed, discard incoming message\n");
           break;
         }
 
-        fgs_nas_msg_t msg_type = get_msg_type(pdu_buffer, pdu_length);
+        fgs_nas_msg_t msg_type = get_msg_type(pdu_buffer, pdu_length); // 讀取資料 並判斷是什麼樣的msg type
         LOG_I(NAS,
               "[UE %ld] Received %s type %s with length %u\n",
               nas->UE_id,
