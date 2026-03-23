@@ -2,6 +2,8 @@
 
 > Reference :
 >   https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw
+>
+>   https://www.sharetechnote.com/html/5G/5G_NAS.html
 > 
 >   3GPP TR 38.821
 > 
@@ -88,6 +90,18 @@
     
 * NAS (Non-Access Stratum,非接入層)
   * 功能：(UE $\leftrightarrow$ CN) 負責 UE 與核心網 (AMF/SMF) 之間的移動性管理、對談管理與安全控制。
+  ### NAS 層
+    NAS層 非接入層，主要處理UE 與 core之間的訊息，負責做認證、加密及確定UE資訊，並建立上網的管道
+
+    NAS層的工作大約可以分成兩個部分來完成，一個是Mobility Management(MM)，另一個是 Session Management(SM)
+* MM (Mobility Management) 主要負責處理認證，加密，管理手機的狀態
+* SM (Session Management) 負責完成PDU session 與分配流量的優先級（Quality of Service, QoS）
+  
+  NAS層屬於控制面，所以NAS訊息本身是 signaling 只負責控制，並且會使用replay 來提高安全性。
+      
+  <img width="572" height="816" alt="螢幕擷取畫面 2026-03-23 230604" src="https://github.com/user-attachments/assets/ef490511-b746-430d-99e2-d011867e002d" />
+
+  圖中的UE Security Capability、 5GMM Capability等資訊都會被重複傳送，來提高安全性
 
   ### RACH
   
