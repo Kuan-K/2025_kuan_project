@@ -632,16 +632,16 @@ static void derive_ue_keys(uint8_t *buf, nr_ue_nas_t *nas)
   uint8_t *rand = nas->security.rand;
   uint8_t *kgnb = nas->security.kgnb;
 
-  // get RAND for authentication request
+  // get RAND for authentication request 收到的封包 buf 的第8個位元開始挖出16bytes的RAND
   for (int index = 0; index < 16; index++) {
     rand[index] = buf[8 + index];
   }
 
   uint8_t resTemp[16];
   uint8_t ck[16], ik[16];
-  f2345(nas->uicc->key, rand, resTemp, ck, ik, ak, nas->uicc->opc);
+  f2345(nas->uicc->key, rand, resTemp, ck, ik, ak, nas->uicc->opc); // 呼叫f2345 算出RES CK IK AK
 
-  transferRES(ck, ik, resTemp, rand, output, nas->uicc);
+  transferRES(ck, ik, resTemp, rand, output, nas->uicc); //呼叫transferRES 計算RES*
 
   for (int index = 0; index < 6; index++) {
     sqn[index] = buf[26 + index];
