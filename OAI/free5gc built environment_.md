@@ -118,8 +118,9 @@ sudo ./ran_build/build/nr-uesoftmodem -O ../targets/PROJECTS/GENERIC-NR-5GC/CONF
 ### NTN E2E
 
 #### ping
+因為free5GC 的官方UPF容器內，沒有特別安裝基本的ping iperf3等，所以我們沒辦法像之前oai-cn5g一樣直接ping到容器內或是直接打iperf 
 
-直接ping外網
+但是可以透過直接ping外網來驗證 是ping的通，ping的出去的
 ```
 ping -I oaitun_ue1 8.8.8.8
 ```
