@@ -215,4 +215,6 @@ output: res, ck, ik, ak, akstar
 ```
 拆解封包 取得RAND 呼叫f2345 與 transferRES 取得CK IK AK RES*
 
+[note] OAI並沒有乎叫f1 取的AUTN 認證基地台
+
 transferRES
