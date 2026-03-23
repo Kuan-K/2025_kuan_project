@@ -170,7 +170,7 @@ output: res, ck, ik, ak, akstar
 
 ### [nr_nas_msg.c](https://github.com/Kuan-K/2025_kuan_project/blob/main/OAI/oai_codes/nr_nas_msg.c)
 
-當OAI的內部系統訊息 ITTI (Inter-Task Interface) 為 NAS_DOWNLINK_DATA_IND 時，會經由 swuich case 選擇後進入 case [NAS_DOWNLINK_DATA_IND]https://github.com/Kuan-K/2025_kuan_project/blob/d648d50d9135c5ea515d13ea475708860dfede11/OAI/oai_codes/nr_nas_msg.c#L2110
+當OAI的內部系統訊息 ITTI (Inter-Task Interface) 為 NAS_DOWNLINK_DATA_IND 時，會經由 swuich case 選擇後進入 case [NAS_DOWNLINK_DATA_IND](https://github.com/Kuan-K/2025_kuan_project/blob/d648d50d9135c5ea515d13ea475708860dfede11/OAI/oai_codes/nr_nas_msg.c#L2110)
 
 當 msg_type = FGS_AUTHENTICATION_REQUEST 時 呼叫 handle_fgmm_authentication_request 去做身分認證及計算RES
 
@@ -199,7 +199,8 @@ output: res, ck, ik, ak, akstar
  generateAuthenticationResp(nas, initialNasMsg, buffer->buf);
 ```
 呼叫 generateAuthenticationResp
-#### [generateAuthenticationResp](https://github.com/Kuan-K/2025_kua
+#### [generateAuthenticationResp](https://github.com/Kuan-K/2025_kuan_project/blob/59700c8614c7ceee2488119eaffa06d32a29ed45/OAI/oai_codes/nr_nas_msg.c#L1026)
+
 ```
 // get RAND for authentication request 收到的封包 buf 的第8個位元開始挖出16bytes的RAND
   for (int index = 0; index < 16; index++) {
