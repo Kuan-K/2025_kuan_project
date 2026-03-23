@@ -103,6 +103,18 @@
 
   圖中的UE Security Capability、 5GMM Capability等資訊都會被重複傳送，來提高安全性
 
+| IE Nanme | First Appearance   | Replayed / Referenced In | purpose |
+|:---------|:-------------------|:-------------------------|:--------|
+|`UE Security Capability` | Registration Request | Security Mode Command|讓AMF驗證SMC中達成的UE|UE 安全演算法是 UE 最初提供的|
+|`5GMM Capability` | Registration Request | Security Mode Command|確認 UE 的 NAS 功能支援|
+|`UE Security Parameters from NR` | Registration Request | Security Mode Command|確保初始NR 側的安全參數未被竄改|
+|`Requested NSSAI → Allowed NSSAI` | Registration Request | Security Mode Command|根據 UE 的請求與subscription回應允許使用的 S-NSSAIs|
+|`5GS Mobile Identity → 5G-GUTI` | Registration Request | Security Mode Command|用於移動性管理，並更換臨時識別碼以保護隱私|
+|`ABBA` | Authentication Request | Security Mode Command|防止綁定攻擊|
+|`ngKSI` | Registration Request | All NAS messages|識別金鑰|
+
+
+
   ### RACH
   
   Msg1:PRACH (UE 發 preamble)
