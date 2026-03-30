@@ -176,6 +176,12 @@ output: res, ck, ik, ak, akstar
 
 #### [handle_fgmm_authentication_request](https://github.com/Kuan-K/2025_kuan_project/blob/1cd927a7a3a23e6d94ef855b753969df1e832340/OAI/oai_codes/nr_nas_msg.c#L1071)
 
+* input
+ * nas : 包含所有狀態、key、sim卡資訊
+ * buffer : 原始封包
+* output
+ * initialNasMsg 最終要回給基地台的Authentication Response 封包
+   
 ```
   fgmm_msg_header_t mm_header = {0};
   if ((decoded = decode_5gmm_msg_header(&mm_header, buffer->buf + size, buffer->len - size)) < 0) {
@@ -198,8 +204,19 @@ output: res, ck, ik, ak, akstar
 ```
  generateAuthenticationResp(nas, initialNasMsg, buffer->buf);
 ```
+
 呼叫 generateAuthenticationResp
+傳入 nas,initialNasMsg與buffer->(只有資料沒有長度)
 #### [generateAuthenticationResp](https://github.com/Kuan-K/2025_kuan_project/blob/59700c8614c7ceee2488119eaffa06d32a29ed45/OAI/oai_codes/nr_nas_msg.c#L1026)
+
+* input
+ * nas : 包含所有狀態、key、sim卡資訊
+ * buf : 封包資料(陣列指標)
+* output
+ * initialNasMsg 最終要回給基地台的Authentication Response 封包
+
+呼叫 [dreive_ue_keys](https://github.com/Kuan-K/2025_kuan_project/blob/ab641c689f8ca1394c8889eb6caa97ddf76f60d0/OAI/oai_codes/nr_nas_msg.c#L623)
+傳入 buf,nas
 
 ```
 // get RAND for authentication request 收到的封包 buf 的第8個位元開始挖出16bytes的RAND
