@@ -507,21 +507,22 @@ static int fill_imeisv(FGSMobileIdentity *mi, const uicc_t *uicc)
 
 void transferRES(uint8_t ck[16], uint8_t ik[16], uint8_t *input, uint8_t rand[16], uint8_t *output, uicc_t *uicc)
 {
-  uint8_t S[100] = {0};
-  S[0] = 0x6B;
-  servingNetworkName(S + 1, uicc->imsiStr, uicc->nmc_size);
-  int netNamesize = strlen((char *)S + 1);
-  S[1 + netNamesize] = (netNamesize & 0xff00) >> 8;
-  S[2 + netNamesize] = (netNamesize & 0x00ff);
-  for (int i = 0; i < 16; i++)
+  uint8_t S[100] = {0}; // 宣告一個 100bytes的陣列S
+  S[0] = 0x6B; // 將第一碼設為 0x6b 3GPP規定
+  servingNetworkName(S + 1, uicc->imsiStr, uicc->nmc_size); #呼叫函式計算服務網路名稱(SNN) 並寫入S[1]
+  int netNamesize = strlen((char *)S + 1); // 計算SNN長度
+  S[1 + netNamesize] = (netNamesize & 0xff00) >> 8; // 將長度拆成2byte 標示在SNN後面
+  S[2 + netNamesize] = (netNamesize & 0x00ff); // 使用0x00ff或0xff00 將 高或低byte濾掉
+  for (int i = 0; i < 16; i++) //將 16byte 的rand 寫入 S
     S[3 + netNamesize + i] = rand[i];
-  S[19 + netNamesize] = 0x00;
+  S[19 + netNamesize] = 0x00; // 標示rand長度
   S[20 + netNamesize] = 0x10;
-  for (int i = 0; i < 8; i++)
+  for (int i = 0; i < 8; i++) // 將 input(原RES寫入)
     S[21 + netNamesize + i] = input[i];
-  S[29 + netNamesize] = 0x00;
+  S[29 + netNamesize] = 0x00; // 標示RES長度
   S[30 + netNamesize] = 0x08;
 
+  // 已沒再用 -----------------------------------
   uint8_t plmn[3] = {0x02, 0xf8, 0x39};
   uint8_t oldS[100];
   oldS[0] = 0x6B;
@@ -536,16 +537,16 @@ void transferRES(uint8_t ck[16], uint8_t ik[16], uint8_t *input, uint8_t rand[16
     oldS[24 + i] = input[i];
   oldS[32] = 0x00;
   oldS[33] = 0x08;
-
-  uint8_t key[32] = {0};
+// -----------------------------------
+  uint8_t key[32] = {0}; // 宣告32byte 的陣列並將CK IK合併
   memcpy(&key[0], ck, 16);
   memcpy(&key[16], ik, 16); // KEY
-  uint8_t out[32] = {0};
+  uint8_t out[32] = {0}; // 宣告放RES* 的陣列
 
-  byte_array_t data = {.buf = S, .len = 31 + netNamesize};
-  kdf(key, data, 32, out);
+  byte_array_t data = {.buf = S, .len = 31 + netNamesize}; // 將 S 陣列封裝
+  kdf(key, data, 32, out); // 呼叫 kdf 函式用key 與 s 做計算
 
-  memcpy(output, out + 16, 16);
+  memcpy(output, out + 16, 16); // 將RES* 存入output
 }
 
 void derive_kausf(uint8_t ck[16], uint8_t ik[16], uint8_t sqn[6], uint8_t kausf[32], uicc_t *uicc)
