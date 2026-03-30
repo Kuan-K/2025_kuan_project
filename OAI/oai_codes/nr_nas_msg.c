@@ -1027,28 +1027,28 @@ static void handle_identity_request(as_nas_info_t *initialNasMsg, nr_ue_nas_t *n
 static void generateAuthenticationResp(nr_ue_nas_t *nas, as_nas_info_t *initialNasMsg, uint8_t *buf)
 {
   derive_ue_keys(buf, nas);
-  OctetString res;
+  OctetString res; // OctetString 是 3GPP 程式碼中常用的結構，專門用來裝不定長度的字串或陣列
   res.length = 16;
   res.value = calloc(1, 16);
-  memcpy(res.value, nas->security.res, 16);
+  memcpy(res.value, nas->security.res, 16); //將res 存入
 
   int size = sizeof(fgmm_msg_header_t);
   fgmm_nas_message_plain_t plain = {0};
 
   // Plain 5GMM header
-  plain.header = set_mm_header(FGS_AUTHENTICATION_RESPONSE, PLAIN_5GS_MSG);
+  plain.header = set_mm_header(FGS_AUTHENTICATION_RESPONSE, PLAIN_5GS_MSG); //加入標頭
   size += sizeof(plain.header);
 
   // set response parameter
-  fgs_authentication_response_msg *mm_msg = &plain.mm_msg.fgs_auth_response;
-  mm_msg->authenticationresponseparameter.res = res;
+  fgs_authentication_response_msg *mm_msg = &plain.mm_msg.fgs_auth_response; 
+  mm_msg->authenticationresponseparameter.res = res; // 將前面的 res 裝入authenticationresponseparameter
   size += 18;
   // encode the message
-  initialNasMsg->nas_data = malloc_or_fail(size * sizeof(*initialNasMsg->nas_data));
+  initialNasMsg->nas_data = malloc_or_fail(size * sizeof(*initialNasMsg->nas_data)); //準備記憶體
 
-  initialNasMsg->length = mm_msg_encode(&plain, initialNasMsg->nas_data, size);
+  initialNasMsg->length = mm_msg_encode(&plain, initialNasMsg->nas_data, size);// 將資料塞進 nas_data裡
   // Free res value after encode
-  free(res.value);
+  free(res.value); //清空記憶體
 }
 
 /** @brief Send Authentication Failure message from the UE to the AMF to
