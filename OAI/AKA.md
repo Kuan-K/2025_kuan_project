@@ -1,4 +1,4 @@
-# Study Note: 接取流程步驟
+# Study Note: AKA認證
 
 > Reference :
 > 
@@ -9,7 +9,8 @@
 2. AKA 回應與細節
 3. Flowchart
 4. MSC
-5. oai程式碼
+5. oai程式碼 (UE)
+6. free5gc程式碼(core)
 
 ---
 
@@ -89,9 +90,15 @@ UE 的 [command](https://github.com/Kuan-K/2025_kuan_project/blob/main/OAI/NTN_e
 
 #### [f1 函式](https://github.com/Kuan-K/2025_kuan_project/blob/72784d93f2b5b62efb7aadfbeab3d65ef148ef28/OAI/oai_codes/milenage.h#L63)
 
-input : opc,k,_rand,sqn,amf
-output : mac_a,mac_s
-
+* input
+  * opc : 電信商金鑰
+  * k : 原始金鑰
+  * rand : 隨機碼 (每次都不一樣)
+  * sqn : Sequence Number 同步計數器
+  * amf : 通常是固定或預設值，自訂開關可以用來切換演算法或限制金鑰
+* output
+  * mac_a : 用來確認 AUTN
+  * mac_s : 預備用
 
 加密過程先將RAND 與 opc 做 XOR 接著呼叫aeS-128使用金鑰K加密並存到tmp1
 
@@ -146,8 +153,16 @@ output : mac_a,mac_s
 
 #### [f2345 函式](https://github.com/Kuan-K/2025_kuan_project/blob/72784d93f2b5b62efb7aadfbeab3d65ef148ef28/OAI/oai_codes/milenage.h#L126)
 
-input: opc, k, rand
-output: res, ck, ik, ak, akstar
+* input
+  * opc : 電信商金鑰
+  * k : 原始金鑰
+  * rand : 隨機碼 (每次都不一樣)
+* output
+  * ik : integrity key 完整性金鑰
+  * ck : confidentiality key 加密金鑰
+  * ak : anonymity key 匿名金鑰
+  * akstar 備用ak
+  * res : Response  回覆(答案)
 
 先將RAND與opc做XOR，再使用AES_128與k做加密，並將結果存至 tmp2
 
@@ -177,10 +192,10 @@ output: res, ck, ik, ak, akstar
 #### [handle_fgmm_authentication_request](https://github.com/Kuan-K/2025_kuan_project/blob/1cd927a7a3a23e6d94ef855b753969df1e832340/OAI/oai_codes/nr_nas_msg.c#L1071)
 
 * input
- * nas : 包含所有狀態、key、sim卡資訊
- * buffer : 原始封包
+  * nas : 包含所有狀態、key、sim卡資訊
+  * buffer : 原始封包
 * output
- * initialNasMsg 最終要回給基地台的Authentication Response 封包
+  * initialNasMsg 最終要回給基地台的Authentication Response 封包
    
 ```
   fgmm_msg_header_t mm_header = {0};
@@ -210,10 +225,10 @@ output: res, ck, ik, ak, akstar
 #### [generateAuthenticationResp](https://github.com/Kuan-K/2025_kuan_project/blob/59700c8614c7ceee2488119eaffa06d32a29ed45/OAI/oai_codes/nr_nas_msg.c#L1026)
 
 * input
- * nas : 包含所有狀態、key、sim卡資訊
- * buf : 封包資料(陣列指標)
+  * nas : 包含所有狀態、key、sim卡資訊
+  * buf : 封包資料(陣列指標)
 * output
- * initialNasMsg 最終要回給基地台的Authentication Response 封包
+  * initialNasMsg 最終要回給基地台的Authentication Response 封包
 
 呼叫 [dreive_ue_keys](https://github.com/Kuan-K/2025_kuan_project/blob/ab641c689f8ca1394c8889eb6caa97ddf76f60d0/OAI/oai_codes/nr_nas_msg.c#L623)
 傳入 buf,nas
@@ -246,3 +261,35 @@ S[] 資料結構圖
 
 
 <img width="766" height="208" alt="TransferRES" src="https://github.com/user-attachments/assets/c8cb1036-4082-4aa1-a2d5-b8d2c16c86f7" />
+
+## 6 free5gc 程式碼(core)
+
+呼叫 [GenerateAKAParameters](https://github.com/Kuan-K/2025_kuan_project/blob/1ceacd82d4264c77ee2867505509a3d3e0248e15/free5gc/free5gc_codes/milenage.go#L276) 確認參數長度
+
+接著呼叫[generateAKAParameters](https://github.com/Kuan-K/2025_kuan_project/blob/1ceacd82d4264c77ee2867505509a3d3e0248e15/free5gc/free5gc_codes/milenage.go#L257)
+
+* input
+  * opc : 電信商金鑰
+  * k : 原始金鑰
+  * rand : 隨機碼 (每次都不一樣)
+  * sqn : Sequence Number 同步計數器
+  * amf : 通常是固定或預設值，自訂開關可以用來切換演算法或限制金鑰
+* output
+  * ik : integrity key 完整性金鑰
+  * ck : confidentiality key 加密金鑰
+  * xres : Expected Response  預期回覆(標準答案)
+  * AUTN : 認證向量
+
+呼叫 f1 計算 MAC 
+```
+mac, _, err := f1(opc, k, rand, sqn, amf)
+```
+呼叫 f2345 計算 xres, ck, ik, ak
+```
+xres, ck, ik, ak, _, err := f2345(opc, k, rand)
+```
+隱藏 SQN 後合併 AUTN
+```
+consSQNhe := xor(sqn, ak)
+autn = append(consSQNhe, append(amf, mac...)...)
+```
