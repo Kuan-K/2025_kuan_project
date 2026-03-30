@@ -11,6 +11,7 @@
 4. MSC
 5. oai程式碼 (UE)
 6. free5gc程式碼(core)
+7. 圖示
 
 ---
 
@@ -295,3 +296,7 @@ autn = append(consSQNhe, append(amf, mac...)...)
 ```
 
 <img width="432" height="207" alt="AUTN" src="https://github.com/user-attachments/assets/90de3b81-f115-497e-b74f-aaef02746aa8" />
+
+## 7 圖示
+
+<img width="601" height="481" alt="AKA_core_UE" src="https://github.com/user-attachments/assets/2bc334c1-1485-4e20-90c3-46330a345441" />
