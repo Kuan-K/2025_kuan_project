@@ -293,3 +293,5 @@ xres, ck, ik, ak, _, err := f2345(opc, k, rand)
 consSQNhe := xor(sqn, ak)
 autn = append(consSQNhe, append(amf, mac...)...)
 ```
+
+<img width="432" height="207" alt="AUTN" src="https://github.com/user-attachments/assets/90de3b81-f115-497e-b74f-aaef02746aa8" />
