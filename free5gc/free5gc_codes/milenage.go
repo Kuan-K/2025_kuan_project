@@ -255,25 +255,25 @@ func f2345(opc, k, _rand []uint8) (res, ck, ik, ak, akstar []byte, err error) {
 * @err: errors
  */
 func generateAKAParameters(opc, k, rand, sqn, amf []byte) (ik, ck, xres, autn []byte, err error) {
-	mac, _, err := f1(opc, k, rand, sqn, amf)
+	mac, _, err := f1(opc, k, rand, sqn, amf) //呼叫f1計算mac
 	if err != nil {
 		err = errors.Wrap(err, "calculate F1 failed")
 		return nil, nil, nil, nil, err
 	}
 
-	xres, ck, ik, ak, _, err := f2345(opc, k, rand)
+	xres, ck, ik, ak, _, err := f2345(opc, k, rand) // 呼叫f2345計算 xres ck ik ak
 	if err != nil {
 		err = errors.Wrap(err, "calculate F2345 failed")
 		return nil, nil, nil, nil, err
 	}
 
-	consSQNhe := xor(sqn, ak)
-	autn = append(consSQNhe, append(amf, mac...)...)
+	consSQNhe := xor(sqn, ak) // 將sqn與ak做xor 隱藏sqn
+	autn = append(consSQNhe, append(amf, mac...)...) // 組合AUTN
 
 	return ik, ck, xres, autn, nil
 }
 
-func GenerateAKAParameters(opc, k, rand, sqn, amf []byte) (ik, ck, xres, autn []byte, err error) {
+func GenerateAKAParameters(opc, k, rand, sqn, amf []byte) (ik, ck, xres, autn []byte, err error) { // 防呆機制 呼叫5次validateArg 確認參數長度
 	err = validateArg(opc, "OPc", OPC_LEN)
 	if err != nil {
 		return nil, nil, nil, nil, err
