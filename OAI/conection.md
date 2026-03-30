@@ -217,4 +217,10 @@ output: res, ck, ik, ak, akstar
 
 [note] OAI並沒有乎叫f1 取的AUTN 認證基地台
 
-transferRES
+#### [transferRES](https://github.com/Kuan-K/2025_kuan_project/blob/7f5c73d26631fa3babd4bcb3151d31f0afc04c12/OAI/oai_codes/nr_nas_msg.c#L508)
+
+呼叫 [servingNetworkName]https://github.com/Kuan-K/2025_kuan_project/blob/7f5c73d26631fa3babd4bcb3151d31f0afc04c12/OAI/oai_codes/nr_nas_msg.c#L104 取得SNN後與rand合併
+
+並呼叫 kdf 將結果 與 CK+IK 做計算得出 RES*
+
+kdf會呼叫 [sha_256_hmac](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair3/SECU/sha_256_hmac.c#L16)
