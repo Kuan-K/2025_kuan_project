@@ -241,3 +241,8 @@ output: res, ck, ik, ak, akstar
 並呼叫 kdf 將結果 與 CK+IK 做計算得出 RES*
 
 kdf會呼叫 [sha_256_hmac](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair3/SECU/sha_256_hmac.c#L16)
+
+S[] 資料結構圖
+
+
+<img width="766" height="208" alt="TransferRES" src="https://github.com/user-attachments/assets/c8cb1036-4082-4aa1-a2d5-b8d2c16c86f7" />
