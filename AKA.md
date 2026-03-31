@@ -89,6 +89,7 @@ UE 的 [command](https://github.com/Kuan-K/2025_kuan_project/blob/main/OAI/NTN_e
 
 ### [milenage.h](https://github.com/Kuan-K/2025_kuan_project/blob/main/OAI/oai_codes/milenage.h)
 
+source [openair3/NAS/COMMON](https://gitlab.eurecom.fr/oai/openairinterface5g/-/tree/develop/openair3/NAS/COMMON?ref_type=heads)
 #### [f1 函式](https://github.com/Kuan-K/2025_kuan_project/blob/72784d93f2b5b62efb7aadfbeab3d65ef148ef28/OAI/oai_codes/milenage.h#L63)
 
 * input
@@ -186,6 +187,8 @@ UE 的 [command](https://github.com/Kuan-K/2025_kuan_project/blob/main/OAI/NTN_e
 
 ### [nr_nas_msg.c](https://github.com/Kuan-K/2025_kuan_project/blob/main/OAI/oai_codes/nr_nas_msg.c)
 
+source :[openair3/NAS/NR_UE](https://gitlab.eurecom.fr/oai/openairinterface5g/-/tree/develop/openair3/NAS/NR_UE?ref_type=heads)
+
 當OAI的內部系統訊息 ITTI (Inter-Task Interface) 為 NAS_DOWNLINK_DATA_IND 時，會經由 swuich case 選擇後進入 case [NAS_DOWNLINK_DATA_IND](https://github.com/Kuan-K/2025_kuan_project/blob/d648d50d9135c5ea515d13ea475708860dfede11/OAI/oai_codes/nr_nas_msg.c#L2110)
 
 當 msg_type = FGS_AUTHENTICATION_REQUEST 時 呼叫 handle_fgmm_authentication_request 去做身分認證及計算RES
@@ -264,6 +267,10 @@ S[] 資料結構圖
 <img width="766" height="208" alt="TransferRES" src="https://github.com/user-attachments/assets/c8cb1036-4082-4aa1-a2d5-b8d2c16c86f7" />
 
 ## 6 free5gc 程式碼(core)
+
+### milenage.go
+
+source : [util/milenage](https://github.com/free5gc/util/tree/main/milenage)
 
 呼叫 [GenerateAKAParameters](https://github.com/Kuan-K/2025_kuan_project/blob/1ceacd82d4264c77ee2867505509a3d3e0248e15/free5gc/free5gc_codes/milenage.go#L276) 確認參數長度
 
