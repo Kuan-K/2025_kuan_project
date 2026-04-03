@@ -304,6 +304,10 @@ autn = append(consSQNhe, append(amf, mac...)...)
 
 <img width="432" height="207" alt="AUTN" src="https://github.com/user-attachments/assets/90de3b81-f115-497e-b74f-aaef02746aa8" />
 
+### [ue_authentication.go](https://github.com/Kuan-K/2025_kuan_project/blob/main/free5gc/free5gc_codes/ue_authentication.go)
+
+source :[internal/sbi/processor/ue_authentication.go](https://github.com/free5gc/ausf/tree/main/internal/sbi/processor)
+
 ## 7 圖示
 
 <img width="601" height="481" alt="AKA_core_UE" src="https://github.com/user-attachments/assets/2bc334c1-1485-4e20-90c3-46330a345441" />
