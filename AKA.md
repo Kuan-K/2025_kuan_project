@@ -12,6 +12,7 @@
 5. oai程式碼 (UE)
 6. free5gc程式碼(core)
 7. 圖示
+8. 程式碼實作
 
 ---
 
@@ -311,3 +312,28 @@ source :[internal/sbi/processor/ue_authentication.go](https://github.com/free5gc
 ## 7 圖示
 
 <img width="601" height="481" alt="AKA_core_UE" src="https://github.com/user-attachments/assets/2bc334c1-1485-4e20-90c3-46330a345441" />
+
+
+## 8 程式碼實作
+
+source : [Kuan-k/AKA](https://github.com/Kuan-K/AKA)
+
+安裝 OpenSSL與匯入資源
+```
+sudo apt update
+sudo apt install libssl-dev
+
+git clone https://github.com/Kuan-K/AKA.git
+```
+
+編譯 core.c與ue.c
+
+```
+gcc core.c -o core -lcrypto
+gcc core.c -o core -lcrypto
+```
+啟動 core 與 ue
+```
+./core  # 先啟動core 會出現「等待UE連線」
+./ue    # 啟動後變會連接  
+```
