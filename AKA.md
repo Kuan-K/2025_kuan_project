@@ -330,10 +330,72 @@ git clone https://github.com/Kuan-K/AKA.git
 
 ```
 gcc core.c -o core -lcrypto
-gcc core.c -o core -lcrypto
+gcc ue.c -o ue -lcrypto
 ```
 啟動 core 與 ue
 ```
 ./core  # 先啟動core 會出現「等待UE連線」
 ./ue    # 啟動後變會連接  
 ```
+
+### [common.h](https://github.com/Kuan-K/AKA/blob/main/5g-aka-sim/common.h)
+
+定義訊息代碼、TCP傳輸封包架構、AKAconfig 與 計算RES*的函式
+
+```
+typedef struct {
+    uint8_t k[16];          
+    uint8_t opc[16];        
+    uint8_t sqn[6];         
+    uint8_t amf[2];         
+    char snn[64];           
+} AkaConfig;
+```
+
+### [milenage.h](https://github.com/Kuan-K/AKA/blob/main/5g-aka-sim/milenage.h)
+
+f1、f2345與AES加密的函式
+
+### [core.c](https://github.com/Kuan-K/AKA/blob/main/5g-aka-sim/core.c) 與 [ue.c](https://github.com/Kuan-K/AKA/blob/main/5g-aka-sim/ue.c)
+
+會include <common.h> 與 <milenage.h>
+
+與ue暫時用TCP 連線 core端為server ue端為client
+
+目前先將Akaconfig 直接寫死在core 與 ue 的程式內方便修改與確認
+```
+AkaConfig core_config = {
+    .k   = {0x46, 0x5B, 0x5C, 0xE8, 0xB1, 0x99, 0xB4, 0x9F, 0xAA, 0x5F, 0x0A, 0x2E, 0xE2, 0x38, 0xA6, 0xBC},
+    .opc = {0xE8, 0xED, 0x28, 0x9D, 0xEB, 0xA9, 0x52, 0xE4, 0x28, 0x3B, 0x54, 0xE8, 0x8E, 0x61, 0x83, 0xCA},
+    .sqn = {0x00, 0x00, 0x00, 0x00, 0x00, 0x20},
+    .amf = {0x80, 0x00},
+    .snn = "5G:mnc092.mcc466.3gppnetwork.org"
+};
+```
+### result
+
+總共會有三種不同情況 分別是
+* 參數全對，AKA認證完成，成功上網
+* k,opc,sqn或amf 其中至少1個有錯誤，AKA認證失敗，MAC驗證失敗，假基地台
+* SNN錯誤，AKA認證失敗，RES*答案與Xres不同
+  
+#### AKA認證完成，成功上網
+* core 端
+<img width="434" height="136" alt="image" src="https://github.com/user-attachments/assets/cc403274-0c27-4c5d-8410-df34655cbf73" />
+
+* ue 端
+<img width="352" height="103" alt="image" src="https://github.com/user-attachments/assets/f7e7449c-4097-43ff-9bdc-5bfdc3fe5c91" />
+
+#### AKA認證失敗(MAC驗證失敗):假基地台
+* core 端
+<img width="429" height="102" alt="image" src="https://github.com/user-attachments/assets/9fb5b2eb-817c-4043-9178-564cada41742" />
+
+* ue 端
+<img width="367" height="72" alt="image" src="https://github.com/user-attachments/assets/89db623d-43dc-42d9-a266-92565aa39fcf" />
+
+#### AKA認證失敗(RES* ≠ Xres)
+* core 端
+<img width="443" height="136" alt="image" src="https://github.com/user-attachments/assets/e9a9f478-d833-4fd9-80c3-33b9ef4c0154" />
+
+* ue 端
+<img width="360" height="106" alt="image" src="https://github.com/user-attachments/assets/2f241376-5019-4da2-882b-a4ee4bb208d9" />
