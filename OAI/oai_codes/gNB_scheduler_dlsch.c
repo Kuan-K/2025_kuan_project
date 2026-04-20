@@ -1364,29 +1364,29 @@ void post_process_dlsch(gNB_MAC_INST *nr_mac, post_process_pdsch_t *pdsch, NR_UE
   }
 }
 
-void nr_schedule_ue_spec(module_id_t module_id,
-                         frame_t frame,
-                         slot_t slot,
-                         nfapi_nr_dl_tti_request_t *DL_req,
-                         nfapi_nr_tx_data_request_t *TX_req)
+void nr_schedule_ue_spec(module_id_t module_id, // MAC id 通常為0
+                         frame_t frame, // 當前的frame
+                         slot_t slot, // 當前的slot 有了frame 跟 slot 才能知道現在的絕對時間
+                         nfapi_nr_dl_tti_request_t *DL_req, // 空白的DL控制單
+                         nfapi_nr_tx_data_request_t *TX_req)// 空白的DL資料單
 {
-  gNB_MAC_INST *gNB_mac = RC.nrmac[module_id];
+  gNB_MAC_INST *gNB_mac = RC.nrmac[module_id]; // 取出全域變數gNB_MAC
   int CC_id = 0;
 
-  /* already mutex protected: held in gNB_dlsch_ulsch_scheduler() */
+  /* already mutex protected: held in gNB_dlsch_ulsch_scheduler() */ //防呆機制
   AssertFatal(pthread_mutex_trylock(&gNB_mac->sched_lock) == EBUSY,
               "this function should be called with the scheduler mutex locked\n");
 
-  if (!is_dl_slot(slot, &gNB_mac->frame_structure))
+  if (!is_dl_slot(slot, &gNB_mac->frame_structure)) // 看是不是特定模式，如果不需要做下行排程就直接Return
     return;
 
-  NR_ServingCellConfigCommon_t *scc = gNB_mac->common_channels[CC_id].ServingCellConfigCommon;
+  NR_ServingCellConfigCommon_t *scc = gNB_mac->common_channels[CC_id].ServingCellConfigCommon;  // 確認這個slot有多少PRB可以分配
   int bw = scc->downlinkConfigCommon->frequencyInfoDL->scs_SpecificCarrierList.list.array[0]->carrierBandwidth;
   gNB_mac->mac_stats.dl.total_prb_aggregate += bw;
 
-  nfapi_nr_dl_tti_request_body_t *dl_req = &DL_req->dl_tti_request_body;
+  nfapi_nr_dl_tti_request_body_t *dl_req = &DL_req->dl_tti_request_body; //打包資料 將前面的資料包成一個 post_process_pdsch_t pdsch 方便傳送
   post_process_pdsch_t pdsch = { frame, slot, dl_req, TX_req };
 
   /* PREPROCESSOR */
-  gNB_mac->pre_processor_dl(gNB_mac, &pdsch);
+  gNB_mac->pre_processor_dl(gNB_mac, &pdsch); //呼叫 nr_dlsch_preprocessor
 }
