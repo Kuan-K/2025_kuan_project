@@ -146,4 +146,110 @@ REG 在頻率上是一個PRB (PDCCH)能使用的最小單位 ； CEE = 6 個 REG
 
 這個函式會幫UE評估及打分，並且照分數將UE排序，最後確認是否有資源可以分配，決定好要分配給誰後，會計算UE的資料量打包後傳送接著處理下UE。以上動作皆在1個slot(<=1ms)內完成。
 
+<img width="701" height="811" alt="pf_dl_flowchart" src="https://github.com/user-attachments/assets/3e1f62d1-976e-4e6d-9391-39ddb7a75f2f" />
 
+##### 計算歷史吞吐量
+
+```
+    /* Calculate Throughput */
+    const float a = 0.01f;
+    const uint32_t b = stats->current_bytes; // 上次傳了多少Byte
+    UE->dl_thr_ue = (1 - a) * UE->dl_thr_ue + a * b; // 平均速率等於(0.99 * 舊的平均速率) + (0.01 * 剛剛傳送的資料量)
+
+    stats->current_bytes = 0;
+    stats->current_rbs = 0;
+```
+##### 是否重傳
+```
+ if (harq_pid >= 0) { // 進入這裡代表：這支手機有資料傳失敗，急需重傳！
+      NR_beam_alloc_t beam = beam_allocation_procedure(&mac->beam_info, frame, slot, UE->UE_beam_index, slots_per_frame);
+      bool sch_ret = beam.idx >= 0;
+      /* Allocate retransmission  重傳享有最高優先權，不需要算分數！直接呼叫 allocate_dl_retransmission */
+
+else {// 進入這裡代表：沒有需要重傳的封包，準備評估要不要發送「新的資料」
+      if (sched_ctrl->available_dl_harq.head < 0) { // 檢查harq 是否還有空位
+        LOG_D(NR_MAC, "[UE %04x][%4d.%2d] UE has no free DL HARQ process, skipping\n",
+              UE->rnti,
+              frame,
+              slot);
+        continue;
+      }
+      update_dlsch_buffer(pp_pdsch->frame, pp_pdsch->slot, UE);
+      if (!dlsch_to_schedule(sched_ctrl)) // 檢查RLC層的buffer有沒有資料要下載
+        continue;
+```
+
+##### PF權重(coeff)計算
+```
+//決定 MSC 的邏輯
+
+selected_mcs = get_mcs_from_bler(bo, stats, &sched_ctrl->dl_bler_stats, max_mcs, frame); //會根據通道品質(CQI)或錯誤率(BLER)選出一個等級，訊號越好，MSC越高
+      int l = get_dl_nrOfLayers(sched_ctrl, current_BWP->dci_format); l (空間層數, Layers)
+      const uint8_t Qm = nr_get_Qm_dl(selected_mcs, current_BWP->mcsTableIdx); // Qm (調變階數, Modulation Order)
+      const uint16_t R = nr_get_code_rate_dl(selected_mcs, current_BWP->mcsTableIdx); //R (編碼率, Code Rate)
+
+// 計算 TBS 網路有多好，一個CEE可以裝多少
+
+uint32_t tbs = nr_compute_tbs(Qm, R,
+                                    1, /* rbSize */
+                                    10, /* hypothetical number of slots */
+                                    0, /* N_PRB_DMRS * N_DMRS_SLOT */
+                                    0 /* N_PRB_oh, 0 for initialBWP */,
+                                    0 /* tb_scaling */,
+                                    l) >> 3;
+
+// 計算PF 權重分數
+float coeff_ue = (float) tbs / UE->dl_thr_ue; // 分子 tbs (追求最大載量 Max C/I)，分母 dl_thr_ue (追求公平性 Fairness)
+```
+
+##### 安排控制與回饋通道
+```
+// 檢查有沒有 CEE
+int CCEIndex = get_cce_index();
+    if (CCEIndex < 0) {
+      sched_ctrl->dl_cce_fail++; // 即使有 PRB 也沒用，排程失敗。
+      iterator++; continue;
+    }
+// 安排手機回傳 ACK/NACK 的資源
+ int alloc = -1;
+    if (!get_FeedbackDisabled(iterator->UE->sc_info.downlinkHARQ_FeedbackDisabled_r17, sched_ctrl->available_dl_harq.head)) {
+      int r_pucch = nr_get_pucch_resource(sched_ctrl->coreset, ul_bwp->pucch_Config, CCEIndex);
+      alloc = nr_acknack_scheduling(mac, iterator->UE, frame, slot, iterator->UE->UE_beam_index, r_pucch, 0); // 在未來的某個上行 Slot，預留一個位置給手機傳 ACK
+      if (alloc < 0) {
+        LOG_D(NR_MAC, "[UE %04x][%4d.%2d] could not find PUCCH for DL DCI\n", rnti, frame, slot);
+        reset_beam_status(&mac->beam_info, frame, slot, iterator->UE->UE_beam_index, slots_per_frame, beam.new_beam);
+        iterator++;
+        continue;
+      }
+    }
+```
+
+##### 計算資料量與更新
+
+```
+
+/*
+前面get_rb_alloc 找到的 max_rbSize 是「目前最大剩餘空間」，但 UE 不一定需要這麼多 PRB。
+nr_find_nb_rb 會根據 UE 的資料量 往回推算，算出剛剛好的 PRB 數量
+*/
+const int oh = 3 * 4 + (sched_ctrl->ta_apply ? 2 : 0);
+    nr_find_nb_rb(sched_pdsch.Qm,
+                  sched_pdsch.R,
+                  1, // no transform precoding for DL
+                  sched_pdsch.nrOfLayers,
+                  tda_info.nrOfSymbols,
+                  sched_pdsch.dmrs_parms.N_PRB_DMRS * sched_pdsch.dmrs_parms.N_DMRS_SLOT,
+                  sched_ctrl->num_total_bytes + oh,
+                  min_rbSize,
+                  max_rbSize,
+                  &sched_pdsch.tb_size,
+                  &sched_pdsch.rbSize);
+
+// 更新
+
+n_rb_sched[beam.idx] -= sched_pdsch.rbSize; // 從系統扣掉剛發給UE的PRB數量
+    for (int rb = bwp_start + sched_pdsch.rbStart; rb < bwp_start + sched_pdsch.rbStart + sched_pdsch.rbSize; rb++)
+      rballoc_mask[rb] |= slbitmap; // 將資源上對應的格子標示為「已佔用」
+    remainUEs[beam.idx]--;// 這個波束的派車單名額減 1
+    iterator++;    // 換名單上的下一個 UE
+```
