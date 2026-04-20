@@ -22,13 +22,13 @@ schedule 是指 gNB 的 MAC 層如何控制及分配資源，告訴 UE 什麼時
 
 就像是一個棋盤每個格子代表可用的資源，gNB會去決定哪格要分給哪個UE
 
-下行排成 : 就是gNB判斷自己有少資源可以分配，並根據不同的演算法分配給UE
+下行排程 : 就是gNB，判斷有多少資料量需分配給UE，以及有多少資源可以分配，並根據不同的演算法分配給UE
   
-上行排成 : 是因為UE無法主動發送大量資料，必須先透過 PUCCH 發送 Scheduling Request(SR)
+上行排程 : 是因為UE無法主動發送大量資料，必須先透過 PUCCH 發送 Scheduling Request(SR)，基地台收到後會分一小塊資源讓UE回傳BSR (Buffer Status Report,緩衝區狀態回報)。經基地台確認後發放uplink grant
 
 * PRB(Physical Resource Block)
 * 
-  一個PRB 包含 12 個 subcarries 是在 Frequency domain 的單位
+  一個PRB 包含 12 個 subcarriers 是在 Frequency domain 的單位，實際占用頻寬會根據子載波間距(SCS)而改變(常見的有15kHz或30kHz)
 
   [note] 5G NR 不把所有的資料塞在一個很寬的頻率通道裡傳送，而是把一整段寬頻譜，切成非常多條「很細、很窄且互不干擾的頻率小徑」，這些小徑就叫做 Subcarrier（子載波）。
   
