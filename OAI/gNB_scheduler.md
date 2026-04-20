@@ -133,3 +133,17 @@ source : [openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_dlsch.c](https://gitlab.eurec
   int max_sched_ues = bw / (average_agg_level * NR_NB_REG_PER_CCE); // 總數 = BW(總REG數,106)/每支手機消耗的REG數
 ```
 REG 在頻率上是一個PRB (PDCCH)能使用的最小單位 ； CEE = 6 個 REG(標準紙箱) 
+
+#### [pf_dl](https://github.com/Kuan-K/2025_kuan_project/blob/27bf1d81e16029bbaa4343c547c687424c12d80a/OAI/oai_codes/gNB_scheduler_dlsch.c#L610)
+
+* input
+  * gNB_MAC_INST *mac : 基地台的設定與狀態
+  * post_process_pdsch_t *pp_pdsch : 上一層的資料
+  * NR_UE_info_t **UE_list : 目前連線到基地台的所有手機名單
+  * int max_num_ue : 這個slot 最多能排程幾支手機
+  * int num_beams : 系統目前使用的beam數量
+  * int n_rb_sched[num_beams] : 紀錄還有多少 PRB 可以分配
+
+這個函式會幫UE評估及打分，並且照分數將UE排序，最後確認是否有資源可以分配，決定好要分配給誰後，會計算UE的資料量打包後傳送接著處理下UE。以上動作皆在1個slot(<=1ms)內完成。
+
+
