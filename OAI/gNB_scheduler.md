@@ -12,9 +12,9 @@
 3. 程式碼
 
 ---
-### 1 摘要
+## 1 摘要
 
-#### what is schedule
+### what is schedule
 
 schedule 是指 gNB 的 MAC 層如何控制及分配資源，告訴 UE 什麼時候可以傳輸或接收訊息
 
@@ -51,10 +51,11 @@ schedule 是指 gNB 的 MAC 層如何控制及分配資源，告訴 UE 什麼時
 *  絕對公平 (Round Robin) : 大家輪流發一人一個PRB，訊號好的會容易覺得資源被浪費，訊號差的會佔用太多資源，效率不高。
 *  比例公平 (Proportional Fair, PF) 藉由各種因素來分配資源例如，當下能達到的速率、UE過去一段時間的平均速率，UE太久沒被排到，都會使權重改變，進而提升效率。
 
-### 2 flowchart
+## 2 flowchart
 
 <img width="431" height="671" alt="gNB_scheduler c_flowchart" src="https://github.com/user-attachments/assets/b1518b4c-bfcb-42ed-af8e-60018e44833e" />
 
+## 程式碼
 ### gNB_scheduler.c
 
 source : [openair2/LAYER2/NR_MAC_gNB/gNB_scheduler.c](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler.c?ref_type=heads)
@@ -104,3 +105,31 @@ const int num_slots = gNB->frame_structure.numb_slots_frame; //取得一個 Fram
   future_ul_tti_req->n_ulcch = 0;
   future_ul_tti_req->n_group = 0;
 ```
+### gNB_scheduler_dlsch.c
+
+source : [openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_dlsch.c](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_dlsch.c?ref_type=heads)
+
+#### [nr_schedule_ue_spec](https://github.com/Kuan-K/2025_kuan_project/blob/27bf1d81e16029bbaa4343c547c687424c12d80a/OAI/oai_codes/gNB_scheduler_dlsch.c#L1368)
+
+* input
+  * module_id_t module_id :  MAC id 通常為0
+  * frame_t frame : 當前的frame
+  * slot_t slot : 當前的slot 有了frame 跟 slot 才能知道現在的絕對時間
+  * nfapi_nr_dl_tti_request_t *DL_req : 空白的DL控制單
+  * nfapi_nr_tx_data_request_t *TX_req : 空白的DL資料單
+
+這個函是會先看是否需要做下行排成，如果需要會將所需要的資料打包之後呼叫 nr_dlsch_preprocessor
+
+#### [nr_dlsch_preprocessor](https://github.com/Kuan-K/2025_kuan_project/blob/27bf1d81e16029bbaa4343c547c687424c12d80a/OAI/oai_codes/gNB_scheduler_dlsch.c#L894)
+
+* input
+  * gNB_MAC_INST *mac : gNB_MAC的資訊
+  * post_process_pdsch_t *pp_pdsch : 前面打包的資料
+ 
+這個函式會檢查並確認頻寬、beam資源，並計算現在最多可服務 UE ，最後呼叫pf_dl
+
+```
+  int average_agg_level = 4; // TODO find a better estimation 假設一個 ue 需要 4 個 CEE來接收DCI
+  int max_sched_ues = bw / (average_agg_level * NR_NB_REG_PER_CCE); // 總數 = BW(總REG數,106)/每支手機消耗的REG數
+```
+REG 在頻率上是一個PRB (PDCCH)能使用的最小單位 ； CEE = 6 個 REG(標準紙箱) 
