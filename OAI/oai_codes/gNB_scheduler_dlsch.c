@@ -895,24 +895,25 @@ static void nr_dlsch_preprocessor(gNB_MAC_INST *mac, post_process_pdsch_t *pp_pd
 {
   NR_UEs_t *UE_info = &mac->UE_info;
 
-  if (UE_info->connected_ue_list[0] == NULL)
+  if (UE_info->connected_ue_list[0] == NULL) //確認是否有UE
     return;
 
   NR_ServingCellConfigCommon_t *scc = mac->common_channels[0].ServingCellConfigCommon;
-  int bw = scc->downlinkConfigCommon->frequencyInfoDL->scs_SpecificCarrierList.list.array[0]->carrierBandwidth;
-  int num_beams = mac->beam_info.beam_allocation ? mac->beam_info.beams_per_period : 1;
-  int n_rb_sched[num_beams];
+  int bw = scc->downlinkConfigCommon->frequencyInfoDL->scs_SpecificCarrierList.list.array[0]->carrierBandwidth;// 確認頻寬(PRB)
+  int num_beams = mac->beam_info.beam_allocation ? mac->beam_info.beams_per_period : 1; // 是否有開beam hopping 沒有就設為 1(全向)
+  int n_rb_sched[num_beams]; //初始化每個beam的可用資源
   for (int i = 0; i < num_beams; i++)
-    n_rb_sched[i] = bw;
-
-  int average_agg_level = 4; // TODO find a better estimation
-  int max_sched_ues = bw / (average_agg_level * NR_NB_REG_PER_CCE);
+    n_rb_sched[i] = bw; // 一開始每個beam 都有完整的bw 可使用
+  
+  /*REG 在頻率上是一個PRB (PDCCH)能使用的最小單位 ； CEE = 6 個 REG(標準紙箱)  */
+  int average_agg_level = 4; // TODO find a better estimation 假設一個 ue 需要 4 個 CEE來接收DCI
+  int max_sched_ues = bw / (average_agg_level * NR_NB_REG_PER_CCE); // 總數 = BW(總REG數,106)/每支手機消耗的REG數
 
   // FAPI cannot handle more than MAX_DCI_CORESET DCIs
-  max_sched_ues = min(max_sched_ues, MAX_DCI_CORESET);
+  max_sched_ues = min(max_sched_ues, MAX_DCI_CORESET); 
 
   /* proportional fair scheduling algorithm */
-  pf_dl(mac, pp_pdsch, UE_info->connected_ue_list, max_sched_ues, num_beams, n_rb_sched);
+  pf_dl(mac, pp_pdsch, UE_info->connected_ue_list, max_sched_ues, num_beams, n_rb_sched); // 呼叫pf_dl跑演算法
 }
 
 nr_pp_impl_dl nr_init_dlsch_preprocessor()
