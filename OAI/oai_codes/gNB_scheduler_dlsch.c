@@ -617,13 +617,13 @@ static void pf_dl(gNB_MAC_INST *mac,
   frame_t frame = pp_pdsch->frame;
   slot_t slot = pp_pdsch->slot;
 
-  NR_ServingCellConfigCommon_t *scc=mac->common_channels[0].ServingCellConfigCommon;
-  // UEs that could be scheduled
+  NR_ServingCellConfigCommon_t *scc=mac->common_channels[0].ServingCellConfigCommon; 
+  // UEs that could be scheduled 建立空清單準備紀錄PF權重分數
   UEsched_t UE_sched[MAX_MOBILES_PER_GNB + 1] = {0};
-  int remainUEs[num_beams];
+  int remainUEs[num_beams]; // 用來計算這個beam 還能發幾個DCI(上限是max_num_ue)
   for (int i = 0; i < num_beams; i++)
     remainUEs[i] = max_num_ue;
-  int numUE = 0;
+  int numUE = 0; //紀錄清單內UE數量
   int CC_id = 0;
   int slots_per_frame = mac->frame_structure.numb_slots_frame;
 
@@ -632,36 +632,36 @@ static void pf_dl(gNB_MAC_INST *mac,
     NR_UE_sched_ctrl_t *sched_ctrl = &UE->UE_sched_ctrl;
     NR_UE_DL_BWP_t *current_BWP = &UE->current_DL_BWP;
 
-    if (!nr_mac_ue_is_active(UE))
+    if (!nr_mac_ue_is_active(UE)) // 檢查 UE 是否斷線
       continue;
 
-    NR_mac_dir_stats_t *stats = &UE->mac_stats.dl;
+    NR_mac_dir_stats_t *stats = &UE->mac_stats.dl; 
     /* get the PID of a HARQ process awaiting retrnasmission, or -1 otherwise */
-    int harq_pid = sched_ctrl->retrans_dl_harq.head;
+    int harq_pid = sched_ctrl->retrans_dl_harq.head; //檢查是否需要重傳
 
     /* Calculate Throughput */
     const float a = 0.01f;
-    const uint32_t b = stats->current_bytes;
-    UE->dl_thr_ue = (1 - a) * UE->dl_thr_ue + a * b;
+    const uint32_t b = stats->current_bytes; // 上次傳了多少Byte
+    UE->dl_thr_ue = (1 - a) * UE->dl_thr_ue + a * b; // 平均速率等於(0.99 * 舊的平均速率) + (0.01 * 剛剛傳送的資料量)
 
     stats->current_bytes = 0;
     stats->current_rbs = 0;
 
     /* Check if this UE should get TA. If we add the CE, ta_apply will be reset */
-    if (frame == sched_ctrl->ta_frame)
+    if (frame == sched_ctrl->ta_frame) // 檢查是否需要發送 Timing Advance
       sched_ctrl->ta_apply = true;
 
     int total_rem_ues = 0;
     for (int i = 0; i < num_beams; i++)
       total_rem_ues += remainUEs[i];
     if (total_rem_ues == 0)
-      continue;
+      continue; // 如果這個 Slot 的名額 (max_num_ue) 已經發光直接跳過
 
     /* retransmission */
-    if (harq_pid >= 0) {
+    if (harq_pid >= 0) { // 進入這裡代表：這支手機有資料傳失敗，急需重傳！
       NR_beam_alloc_t beam = beam_allocation_procedure(&mac->beam_info, frame, slot, UE->UE_beam_index, slots_per_frame);
       bool sch_ret = beam.idx >= 0;
-      /* Allocate retransmission */
+      /* Allocate retransmission  重傳享有最高優先權，不需要算分數！直接呼叫 allocate_dl_retransmission */
       if (sch_ret)
         sch_ret = allocate_dl_retransmission(mac, pp_pdsch, &n_rb_sched[beam.idx], UE, beam.idx, harq_pid);
       if (!sch_ret) {
@@ -672,7 +672,7 @@ static void pf_dl(gNB_MAC_INST *mac,
       /* reduce max_num_ue once we are sure UE can be allocated, i.e., has CCE */
       remainUEs[beam.idx]--;
 
-    } else {
+    } else {// 進入這裡代表：沒有需要重傳的封包，準備評估要不要發送「新的資料」
       /* skip this UE if there are no free HARQ processes. This can happen e.g.
        * if the UE disconnected in L2sim, in which case the gNB is not notified
        * (this can be considered a design flaw) */
@@ -686,7 +686,7 @@ static void pf_dl(gNB_MAC_INST *mac,
 
       update_dlsch_buffer(pp_pdsch->frame, pp_pdsch->slot, UE);
 
-      if (!dlsch_to_schedule(sched_ctrl))
+      if (!dlsch_to_schedule(sched_ctrl)) // 檢查RLC層的buffer有沒有資料要下載
         continue;
 
       /* Calculate coeff */
