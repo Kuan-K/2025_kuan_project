@@ -30,6 +30,9 @@ Run the gNB from a second terminal
 ```
 cd ~/openairinterface5g/cmake_targets/ran_build/build
 ./nr-softmodem -O ~/oai-workshops/ran/conf/gnb.sa.band78.106prb.rfsim.conf --rfsim
+
+
+./nr-softmodem -O ~/oai-workshops/ran/conf/gnb.sa.band78.106prb.rfsim.conf --rfsim 2>&1 | tee 路徑 //存log
 ```
 When you establish the connection, you can see Setup Request and Setup Response messages in the Wireshark capture.
 <img width="853" height="61" alt="image" src="https://github.com/user-attachments/assets/3f534e94-c030-405a-b7ec-8d5421a187e1" />
