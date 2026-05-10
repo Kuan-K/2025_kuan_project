@@ -39,6 +39,8 @@ Run the nrUE from a third terminal
 ```
 cd ~/openairinterface5g/cmake_targets/ran_build/build
 sudo ./nr-uesoftmodem -C 3619200000 -r 106 --numerology 1 --ssb 516 -O ~/oai-workshops/ran/conf/ue.conf --rfsim
+
+sudo ./nr-uesoftmodem -C 3619200000 -r 106 --numerology 1 --ssb 516 -O ~/oai-workshops/ran/conf/ue.conf --rfsim 2>&1 | tee 路徑 //存log
 ```
 You will see an output message: “Registration reject (Illegal UE)”.
 <img width="1442" height="36" alt="image" src="https://github.com/user-attachments/assets/0ea6edc8-61c3-4ca0-b3c7-f73fa4aca7da" />
