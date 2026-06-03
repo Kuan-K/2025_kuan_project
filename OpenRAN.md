@@ -11,8 +11,8 @@
 
 1. [摘要](#摘要)
 2. [ORAN 怎麼分](#ORAN-怎麼分)
-3. [為什麼要分 (優勢)](#為什麼要分-(優勢))
-4. [挑戰 (劣勢)](#挑戰-(劣勢))
+3. [為什麼要分 (優勢)](#為什麼要分-優勢)
+4. [挑戰 (劣勢)](#挑戰-劣勢)
 
 
 ## 摘要
@@ -28,10 +28,10 @@
 
 quote from : [resource](http://sharetechnote.com/html/OpenRAN/OR_WhereToSplit.html)
 
-OARN 一般切割為分為 CU、DU與RRU(RU) ， 切法有很多種視使用者的需求所切分
+OARN 一般切割分為 CU、DU與RRU(RU) ， 切法有很多種視使用者的需求所切分
 
 CU 與 DU 切分在 option2 並以F1介面連接
-而 DU 與 RRU 切在option7 並以eCPRI 介面連接
+而 DU 與 RU 切在option7 並以eCPRI 介面連接
 
 ## 為什麼要分 (優勢)
 
