@@ -19,7 +19,7 @@ cd cmake_targets
 ```
 cd ~/oai-cn5g
 docker compose up -d
-watch -n 1 docker compose -f docker-compose.yml ps -a #to check container health(確認容器都健康)
+watch -n 1 docker compose -f docker-compose.yaml ps -a #to check container health(確認容器都健康)
 ```
 ### Start the wireshak (optional)
 ```
